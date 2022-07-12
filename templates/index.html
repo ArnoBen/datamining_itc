@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Spotify Search</title>
+</head>
+<body>
+<div>
+    <p>
+        Search on Spotify
+    </p>
+    <form action="/query" method="POST">
+        <input type="text" name="query" id="query" placeholder="Search">
+        <input type="submit" id="query_submit" value="Submit">
+    </form>
+</div>
+
+<div>
+{% if query_results %}
+    <p>
+        {% for title in query_results %}
+        {{title[id]}}
+            <a href="/player?track_id={{title['id']}}">{{ title['idx'] }} - {{ title['artist'] }} - {{ title['name'] }}</a><br/>
+        {% endfor %}
+    </p>
+{% endif %}
+</div>
+<br/>
+<div>
+{% if spotify_embedding %}
+    {{ spotify_embedding |safe}}
+{% endif %}
+</div>
+</body>
+</html>

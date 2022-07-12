@@ -14,7 +14,6 @@ ALBUMS_URL = "https://www.discogs.com/search/?sort=have%2Cdesc&ev=em_rs&type=mas
 html_doc = requests.get(ALBUMS_URL)
 soup = BeautifulSoup(html_doc.text, features="html.parser")
 
-#%%
 cards_layout = soup.find("div", {"class": "cards cards_layout_large"})
 soup_cards = BeautifulSoup(str(cards_layout), features="html.parser")
 cards = soup_cards.find_all("div", {"class": "card card_large float_fix shortcut_navigable"})

@@ -21,6 +21,7 @@ packaging=21.3=pypi_0
 pip=22.1.2=py39h06a4308_0
 pyparsing=3.0.9=pypi_0
 python=3.9.12=h12debd9_1
+python-dotenv=0.20.0=pypi_0
 readline=8.1.2=h7f8727e_1
 redis=4.3.4=pypi_0
 requests=2.28.1=pypi_0
