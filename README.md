@@ -1,7 +1,16 @@
 # Datamining @ ITC
+
+### [GitHub link](https://github.com/ArnoBen/datamining_itc)
+
 Datamining and webscraping project where we will perform webscraping on Discogs and use Spotify's API to build a music themed database.
 
-[GitHub link](https://github.com/ArnoBen/datamining_itc)
+We are using [this Discogs page](https://www.discogs.com/search/?sort=have%2Cdesc&ev=em_rs&type=master)
+which provides a table of albums-artists ranked by most popular of all time (called "Most Collected").
+
+For now we are only scraping the pages. Afterwards, we will request the page for each album and scrap it as well.
+
+We also registered to Spotify for Developers which provides a powerful API. 
+
 ## Packages used
 - BeautifulSoup4 (4.11.1)
 - spotipy (2.20.0)
