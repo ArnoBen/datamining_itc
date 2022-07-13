@@ -31,7 +31,7 @@ This will display a list of Artist - Album scraped from the Discogs webpage.
 :warning: This will NOT work without the environment variables `CLIENT_ID` and `CLIENT_SECRET` required to 
 request Spotify's API. The .env file will be provided in the .zip submission.
 
-- Run `python server.py` 
+- Run `python spotify_server.py` 
 - Go to http://127.0.0.1:5000/
 - Enter a Spotify search
 

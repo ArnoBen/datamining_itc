@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-import spotify
+import spotify_query
 
 app = Flask(__name__)
 last_query_result = []
@@ -15,7 +15,7 @@ def player():
 @app.post('/query')
 def query():
     q = request.form['query']
-    last_query_result = spotify.search(q)
+    last_query_result = spotify_query.search(q)
     return render_template('index.html', query_results=last_query_result)
 
 

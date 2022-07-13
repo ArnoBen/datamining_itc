@@ -20,10 +20,3 @@ def search(query):
         }
         result.append(item)
     return result
-
-if __name__ == "__main__":
-    results = sp.search(q='imagine dragons', limit=20)
-    for idx, track in enumerate(results['tracks']['items']):
-        print(idx, track['name'], track['id'])
-
-    sp.track("1r9xUipOqoNwggBpENDsvJ")
