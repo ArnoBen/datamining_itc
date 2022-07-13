@@ -8,6 +8,7 @@ import sys
 
 BASE_URL = "https://www.discogs.com/search/?sort=have%2Cdesc&ev=em_rs&type=master"
 
+
 def print_results(artists, albums):
     """
     Prints the given artists - albums
