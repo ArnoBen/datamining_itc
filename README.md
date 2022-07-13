@@ -15,6 +15,7 @@ We also registered to Spotify for Developers which provides a powerful API.
 - BeautifulSoup4 (4.11.1)
 - spotipy (2.20.0)
 - Flask (2.1.2) ~ out of scope but fun embedding
+- grequests 0.6.0
 
 ## How to use
 
