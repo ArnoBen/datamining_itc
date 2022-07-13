@@ -11,12 +11,18 @@ For now we are only scraping the pages. Afterwards, we will request the page for
 
 We also registered to Spotify for Developers which provides a powerful API. 
 
+[GitHub link](https://github.com/ArnoBen/datamining_itc)
+
 ## Packages used
 - BeautifulSoup4 (4.11.1)
 - spotipy (2.20.0)
 - Flask (2.1.2) ~ out of scope but fun embedding
 
 ## How to use
+
+```sh
+python discogs.py [count]
+```
 
 ### Scraping Discogs
 
