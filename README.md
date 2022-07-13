@@ -18,9 +18,12 @@ We also registered to Spotify for Developers which provides a powerful API.
 
 ## How to use
 
-```sh
-python discogs.py [count]
-```
+- Using virtualenv:
+ 
+0. virtualenv & activate
+1. install the requirements.txt
+2. `python3 spotify_server.py` # browser UI
+3. `python3 discogs.py [count]` # discogs scraping
 
 ### Scraping Discogs
 
