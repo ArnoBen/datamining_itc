@@ -6,9 +6,8 @@ from bs4 import BeautifulSoup
 import sys
 import logging
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s:%(message)s')
+logging.basicConfig(filename="discogs.log", level=logging.DEBUG, format='%(asctime)s %(levelname)s:%(message)s')
 Logger = logging.getLogger(__name__)
-
 
 BASE_URL = "https://www.discogs.com/search/?sort=have%2Cdesc&ev=em_rs&type=master"
 
