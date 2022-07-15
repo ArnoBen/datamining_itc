@@ -10,7 +10,10 @@ which provides a table of albums-artists ranked by most popular of all time (cal
 For now we are only scraping the pages. Afterwards, we will request the page for each album and scrap it as well.
 
 We also registered to Spotify for Developers which provides a powerful API.
-## Packages used
+
+## Versions
+
+- Python (3.9.12)
 - BeautifulSoup4 (4.11.1)
 - spotipy (2.20.0)
 - Flask (2.1.2) ~ out of scope but fun embedding
