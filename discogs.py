@@ -9,7 +9,7 @@ import logging
 logging.basicConfig(filename="discogs.log", level=logging.DEBUG, format='%(asctime)s %(levelname)s:%(message)s')
 Logger = logging.getLogger(__name__)
 
-BASE_URL = "https://www.discogs.com/search/?sort=have%2Cdesc&ev=em_rs&type=master"
+BASE_URL = "https://www.discogs.com/search/?sort=have%2Cdesc&ev=em_rs&type=master&layout=sm"
 
 
 def print_results(artists, albums):
@@ -30,13 +30,13 @@ def scrape_page(html_page: str):
         html_page: discogs html page to scrape
     """
     soup = BeautifulSoup(html_page, features="html.parser")
-    cards_layout = soup.find("div", {"class": "cards cards_layout_large"})
+    cards_layout = soup.find("ul", {"class": "cards cards_layout_text-only"})
     soup_cards = BeautifulSoup(str(cards_layout), features="html.parser")
-    cards = soup_cards.find_all("div", {"class": "card card_large float_fix shortcut_navigable"})
+    cards = soup_cards.find_all("div", {"class": "card_body"})
 
     artists, albums = [], []
     for card in cards:
-        album = card.find("a", {"class": "search_result_title"}).attrs["title"]
+        album = card.find("a", {"class": "search_result_title"}).text
         artist = card.find("span", attrs={'title': True}).attrs['title']
         albums.append(album)
         artists.append(artist)
