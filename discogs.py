@@ -5,6 +5,7 @@ import grequests
 from bs4 import BeautifulSoup
 import sys
 import logging
+import argparse
 
 logging.basicConfig(filename="discogs.log", level=logging.DEBUG, format='%(asctime)s %(levelname)s:%(message)s')
 Logger = logging.getLogger(__name__)
@@ -61,14 +62,17 @@ def request_first_pages(n_pages: int):
 
 
 def main():
-    page_count = 3
-    if len(sys.argv) == 1:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-v", "--verbose", action="store_true", required=False, help="Outputs more information while scraping")
+    parser.add_argument("-c", "--count", required=False, help="Amount of pages to scrape. Default is 3.")
+    parser.add_argument("-y", "--year", required=False, help="Year of album release to filter")
+    args = parser.parse_args()
+
+    if args.count:
+        page_count = int(args.count)
+    else:
+        page_count = 3
         print("Scraping 3 pages by default")
-    elif len(sys.argv) == 2:
-        page_count = int(sys.argv[1])
-    elif len(sys.argv) > 2 or not sys.argv[1].isdigit():
-        print("usage: ./discogs.py count")
-        return
 
     request_first_pages(page_count)
 
