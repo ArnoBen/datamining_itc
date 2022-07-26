@@ -38,6 +38,8 @@ def main():
     albums = scraper.scrape_albums_songs(albums)
     print(f"Scraped {len(albums)} albums containing a total of {sum(len(album['tracks']) for album in albums)} tracks.")
     print(f"Process completed in {time.time() - start} seconds")
+    scraper.print_errors()  # outputs urls of pages that raised an error during scraping
+
 
 if __name__ == "__main__":
     main()
