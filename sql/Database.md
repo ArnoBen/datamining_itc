@@ -20,3 +20,6 @@ cat *SQL | mysql -u root -p
 
 The ERD and associated SQL was generated from https://dbdiagram.io/d/62de8b910d66c74655454668 
 
+# Picture
+
+![tables-diagram.pdf](tables-diagram.pdf)
