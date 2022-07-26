@@ -43,7 +43,7 @@ optional arguments:
   -y YEAR, --year YEAR  year of album release to filter
 ```
 
-This will display a list of Artist - Album scraped from the Discogs webpage.
+This will scrape the albums pages in discogs starting from [this page](https://www.discogs.com/search/?limit=50&sort=have%2Cdesc&ev=em_rs&type=master&layout=sm)
 
 ### Spotify queries
 
