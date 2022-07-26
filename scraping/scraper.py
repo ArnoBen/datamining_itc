@@ -11,9 +11,9 @@ from utils import minutes_sec_2_sec
 
 class Scraper:
     BASE_URL = "https://www.discogs.com"
-    BASE_OPTIONS = "/search/?limit=250&sort=have%2Cdesc&ev=em_rs&type=master&layout=sm"
+    BASE_OPTIONS = "/search/?limit=50&sort=have%2Cdesc&ev=em_rs&type=master&layout=sm"
     URL = BASE_URL + BASE_OPTIONS
-    BATCH_SIZE = 250
+    BATCH_SIZE = 50
     PROCESSES = 8
 
     def __init__(self, count: int = 3, year: int = None):
