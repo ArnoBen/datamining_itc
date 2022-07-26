@@ -80,8 +80,6 @@ def parse_arguments():
                         help="amount of pages to scrape (default: 3) ")
     parser.add_argument("-y", "--year", required=False, type=int,
                         help="year of album release to filter")
-    parser.add_argument("-t", "--type", required=False, type=str.lower, default="albums",
-                        help="'albums' or 'artists' (default: 'albums')")
     return parser
 
 
@@ -89,15 +87,9 @@ def main():
     parser = parse_arguments()
     parser.print_help()
     return
-    t = args.pop("type")
-    if t == "albums":
-        request_albums(**args)
-    elif t == "artists":
-        # add artists scraping ?
-        pass
-    else:
-        print("Error: Expected 'albums' or 'artists'.\n")
-        parser.print_help()
+    args = vars(parser.parse_args())
+    save = args.pop("save")  # bool that we will use when we implement the storage in db
+    request_albums(**args)
 
 
 if __name__ == "__main__":

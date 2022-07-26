@@ -32,7 +32,7 @@ We also registered to Spotify for Developers which provides a powerful API.
 ### Scraping Discogs
 
 ```
-usage: discogs.py [-h] [-v] [-s] [-c COUNT] [-y YEAR] [-t TYPE]
+usage: discogs.py [-h] [-v] [-s] [-c COUNT] [-y YEAR]
 
 options:
   -h, --help            show this help message and exit
@@ -41,7 +41,6 @@ options:
   -c COUNT, --count COUNT
                         amount of pages to scrape (default: 3)
   -y YEAR, --year YEAR  year of album release to filter
-  -t TYPE, --type TYPE  'albums' or 'artists' (default: 'albums')
 ```
 
 This will display a list of Artist - Album scraped from the Discogs webpage.
