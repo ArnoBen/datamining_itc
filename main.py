@@ -26,6 +26,7 @@ def parse_arguments():
 
 def main():
     parser = parse_arguments()
+    return parser.print_help()
     args = vars(parser.parse_args())
     log_level = logging.DEBUG if args.pop("debug") else logging.INFO
     logging.basicConfig(level=log_level, format='%(asctime)s %(levelname)s:%(message)s')
