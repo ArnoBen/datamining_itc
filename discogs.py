@@ -73,19 +73,18 @@ def parse_arguments():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", required=False, action="store_true",
-                        help="Outputs more information while scraping")
+                        help="outputs more information while scraping")
     parser.add_argument("-c", "--count", required=False, type=int, default=3,
-                        help="Amount of pages to scrape. Default is 3.")
+                        help="amount of pages to scrape (default: 3) ")
     parser.add_argument("-y", "--year", required=False, type=int,
-                        help="Year of album release to filter")
+                        help="year of album release to filter")
     parser.add_argument("-t", "--type", required=False, type=str.lower, default="albums",
-                        help="'albums' or 'artists'")
+                        help="'albums' or 'artists' (default: 'albums')")
     return parser
 
 
 def main():
     parser = parse_arguments()
-    args = vars(parser.parse_args())
     t = args.pop("type")
     if t == "albums":
         request_albums(**args)
