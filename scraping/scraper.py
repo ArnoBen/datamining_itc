@@ -125,11 +125,14 @@ class Scraper:
         Returns:
             list: htmls of pages to scrape
         """
+        log_str = f"Requesting the first {self.count} pages of albums"
+        if self.year:
+            log_str += f" released in {self.year}"
+        self.Logger.info(log_str)
         year_param = f"&year={self.year}" if self.year else ""
         base = self.URL + year_param
         pages = [f"&page={page}" for page in range(1, self.count + 1)]
         rs = (grequests.get(base + page) for page in pages)
-        self.Logger.info(f"Requesting the first {self.count} pages")
         requests_results = grequests.map(rs)
         return requests_results
 
