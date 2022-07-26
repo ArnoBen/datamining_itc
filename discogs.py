@@ -85,8 +85,6 @@ def parse_arguments():
 
 def main():
     parser = parse_arguments()
-    parser.print_help()
-    return
     args = vars(parser.parse_args())
     save = args.pop("save")  # bool that we will use when we implement the storage in db
     request_albums(**args)
