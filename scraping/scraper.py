@@ -10,7 +10,7 @@ class Scraper:
     BASE_URL = "https://www.discogs.com"
     BASE_OPTIONS = "/search/?limit=50&sort=have%2Cdesc&ev=em_rs&type=master&layout=sm"
     URL = BASE_URL + BASE_OPTIONS
-    BATCH_SIZE = 10
+    BATCH_SIZE = 50
 
     def __init__(self, count: int = 3, year: int = None):
         """
