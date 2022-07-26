@@ -26,6 +26,8 @@ class Scraper:
     def scrape_albums(self):
         """
         Scrape album pages on Discogs with the options given in the class constructor.
+        Returns:
+            list: albums containing name, artist and url
         """
         albums = []
         requests_results = self._request_albums()
@@ -39,7 +41,7 @@ class Scraper:
     @staticmethod
     def _scrape_albums_page(html_page: str):
         """
-        Requests and scrapes the given discogs url
+        Scrapes the given discogs page of album list
         Args:
             html_page: discogs html page to scrape
         """
@@ -67,6 +69,14 @@ class Scraper:
         return albums_page
 
     def scrape_albums_songs(self, albums: list):
+        """
+        Scrapes each album's individual page
+        Args:
+            albums: list containing basic album information and their dedicated discogs url that will be scraped.
+
+        Returns:
+            list: albums containing name, artist, url, genre, year and tracklist
+        """
         albums_data = []
         urls = (self.BASE_URL + album["url"] for album in albums)
         # Batching by groups of 10 requests:
@@ -96,6 +106,11 @@ class Scraper:
 
     @staticmethod
     def _scrape_albums_songs_page(html_page: str):
+        """
+        Scrapes the given discogs page of an album
+        Args:
+            html_page: discogs html page to scrape
+        """
         soup = BeautifulSoup(html_page, features="html.parser")
         info = soup.find("tbody").find_all("th")
         genre = info[0].find_next_sibling().text
