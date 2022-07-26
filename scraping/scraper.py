@@ -4,9 +4,9 @@ import itertools
 import grequests
 from requests import Response
 from multiprocessing import Pool
-import tqdm
+from tqdm import tqdm
 from bs4 import BeautifulSoup
-from utils import minutes_sec_2_sec
+from utils import minutes_sec_2_sec, requests_session
 
 
 class Scraper:
@@ -43,16 +43,16 @@ class Scraper:
                 albums.append(album)
         return albums
 
-    def _scrape_albums_page(self, request_response: Response):
+    def _scrape_albums_page(self, response: Response):
         """
         Scrapes the given discogs page of album list
         Args:
-            request_response (Response): request response containing discogs html page to scrape
+            response (Response): request response containing discogs html page to scrape
         """
         try:
-            html_page = request_response.text
+            html_page = response.text
             if not html_page:
-                raise ValueError(f"HTML page empty, request response code {request_response.status_code}")
+                raise ValueError(f"HTML page empty, request response code {response.status_code}")
             soup = BeautifulSoup(html_page, features="html.parser")
             cards_layout = soup.find("ul", {"class": "cards cards_layout_text-only"})
             soup_cards = BeautifulSoup(str(cards_layout), features="html.parser")
@@ -77,8 +77,8 @@ class Scraper:
             return albums_page
 
         except Exception as e:
-            self.Logger.error(f"\nAn error occurred when scraping page {request_response.url}: {e}")
-            self.errors.append((request_response.url, e.__traceback__))
+            self.Logger.error(f"\nAn error occurred when scraping page {response.url}: {e}")
+            self.errors.append((response.url, e.__traceback__))
 
     def scrape_albums_songs(self, albums: list):
         """
@@ -92,18 +92,18 @@ class Scraper:
         albums_data = []
         urls = (self.BASE_URL + album["url"] for album in albums)
 
-        # Batching requests:
         while True:
+            # Batching requests:
             batch = list(itertools.islice(urls, self.BATCH_SIZE))
             if not batch:
                 break
-            requests_results = self._request_albums_songs(batch)
+            response = self._request_albums_songs(batch)
             # Scraping pages with multiprocessing for speed
             self.Logger.info(f"Scraping albums {len(albums_data) + len(batch)}/{len(albums)}")
             with Pool(self.PROCESSES) as p:
-                album_data = list(tqdm.tqdm(
+                album_data = list(
                     # Wrapping the multiprocessing in tqdm to show progress bar
-                    p.imap(self._scrape_albums_songs_page, requests_results), total=len(batch))
+                    tqdm(p.imap(self._scrape_albums_songs_page, response), total=len(batch))
                 )
             albums_data += album_data
         # Creating a new album dict with more information:
@@ -120,23 +120,24 @@ class Scraper:
             albums_complete.append(full_data)
         return albums_complete
 
-    def _scrape_albums_songs_page(self, request_response: Response):
+    def _scrape_albums_songs_page(self, response: Response):
         """
         Scrapes the given discogs page of an album
         Args:
-            request_response (Response): request response containing discogs html page to scrape
+            response (Response): request response containing discogs html page to scrape
         """
         try:
-            self.Logger.debug(f"Scraping album : {request_response.url}")
-            html_page = request_response.text
+            self.Logger.debug(f"Scraping album : {response.url}")
+            html_page = response.text
             if not html_page:
-                raise ValueError(f"HTML page empty, request response code {request_response.status_code}")
+                raise ValueError(f"HTML page empty, request response code {response.status_code}")
             soup = BeautifulSoup(html_page, features="html.parser")
             info = soup.find("tbody").find_all("th")
             genre = info[0].find_next_sibling().text
             year = info[2].find_next_sibling().text
 
-            tracklist = soup.find("section", {"id": "release-tracklist"}).find_all("tr",attrs={'data-track-position': True})
+            tracklist = soup.find("section", {"id": "release-tracklist"}).find_all("tr",
+                                                                                   attrs={'data-track-position': True})
             tracks = []
             for track in tracklist:
                 track_name = track.select('td[class*="trackTitle"]')[0].text
@@ -155,8 +156,8 @@ class Scraper:
             return album_data
 
         except Exception as e:
-            self.Logger.error(f"\nAn error occurred when scraping page {request_response.url}: {e}")
-            self.errors.append((request_response.url, e.__traceback__))
+            self.Logger.error(f"\nAn error occurred when scraping page {response.url}: {e}")
+            self.errors.append((response.url, e.__traceback__))
 
     def _request_albums(self):
         """
@@ -164,19 +165,24 @@ class Scraper:
         Returns:
             list: htmls of pages to scrape
         """
-        log_str = f"Requesting the first {self.count} pages of albums"
-        if self.year:
-            log_str += f" released in {self.year}"
-        self.Logger.info(log_str)
+        self.Logger.info(f"Requesting the first {self.count} pages of albums" +
+                         (f" released in {self.year}" if self.year else ""))
         year_param = f"&year={self.year}" if self.year else ""
-        base = self.URL + year_param
-        pages = [f"&page={page}" for page in range(1, self.count + 1)]
-        rs = (grequests.get(base + page) for page in pages)
-        requests_results = grequests.map(rs)
-        return requests_results
+        pages = [self.URL + year_param + f"&page={page}" for page in range(1, self.count + 1)]
+        track_requests = tqdm(total=len(pages))
 
-    @staticmethod
-    def _request_albums_songs(urls: list):
+        def request_fulfilled(r, *args, **kwargs):
+            """Allows for tdqm to track the progress"""
+            track_requests.update()
+
+        session = requests_session.get_session(request_fulfilled)
+        rs = (grequests.get(page, stream=False, session=session) for page in pages)
+        responses = grequests.map(rs)
+        track_requests.close()
+        for response in responses: response.close()
+        return responses
+
+    def _request_albums_songs(self, urls: list):
         """
         Requests album song pages on discogs.
 
@@ -188,9 +194,14 @@ class Scraper:
         Returns:
             list: htmls of pages to scrape
         """
-        rs = (grequests.get(url) for url in urls)
-        requests_results = grequests.map(rs)
-        return requests_results
+        self.Logger.info(f"Requesting {len(urls)} album pages")
+        track_requests = tqdm(total=len(urls))
+        session = requests_session.get_session(track_requests)
+        rs = (grequests.get(url, stream=False, session=session) for url in urls)
+        responses = grequests.map(rs)
+        track_requests.close()
+        for response in responses: response.close()
+        return responses
 
     def print_errors(self):
         if self.errors:
@@ -205,12 +216,12 @@ if __name__ == "__main__":
             'name': 'The Dark Side Of The Moon',
             'artist': {'name': 'Pink Floyd', 'url': '/artist/45467-Pink-Floyd'},
             'url': '/master/10362-Pink-Floyd-The-Dark-Side-Of-The-Moon'
-         },
+        },
         {
             'name': "Sgt. Pepper's Lonely Hearts Club Band",
             'artist': {'name': 'The Beatles', 'url': '/artist/82730-The-Beatles'},
             'url': '/master/23934-The-Beatles-Sgt-Peppers-Lonely-Hearts-Club-Band'
-         },
+        },
         {
             'name': 'Abbey Road',
             'artist': {'name': 'The Beatles', 'url': '/artist/82730-The-Beatles'},
@@ -219,4 +230,3 @@ if __name__ == "__main__":
     ]
     scraper = Scraper()
     scraper.scrape_albums_songs(test_albums)
-
