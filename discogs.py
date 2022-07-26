@@ -10,7 +10,8 @@ import argparse
 logging.basicConfig(filename="discogs.log", level=logging.DEBUG, format='%(asctime)s %(levelname)s:%(message)s')
 Logger = logging.getLogger(__name__)
 
-BASE_URL = "https://www.discogs.com/search/?sort=have%2Cdesc&ev=em_rs&type=master&layout=sm"
+BASE_URL = "https://www.discogs.com/search/"
+BASE_OPTIONS = "?limit=250?sort=have%2Cdesc&ev=em_rs&type=master&layout=sm"
 
 
 def print_results(artists, albums):
@@ -45,15 +46,18 @@ def scrape_page(html_page: str):
     print_results(artists, albums)
 
 
-def request_first_pages(n_pages: int):
+def request_albums(count: int, year: int, verbose: bool):
     """
     Requests the first n pages of albums
     Args:
-        n_pages: number of pages to request
+        count (int): number of pages to request
+        year (int): year to filter
+        verbose (bool): whereas to print more information
     """
-    batch = [f"&page={page}" for page in range(1, n_pages + 1)]
-    rs = (grequests.get(BASE_URL + url) for url in batch)
-    Logger.info(f"Requesting first {n_pages} pages")
+    pages = [f"&page={page}" for page in range(1, count + 1)]
+    year_param = f"&year={year}" if year else None
+    rs = (grequests.get(BASE_URL + BASE_OPTIONS + page + year_param) for page in pages)
+    Logger.info(f"Requesting first {count} pages")
     requests_results = grequests.map(rs)
     for result in requests_results:
         Logger.info(f"Scraping {result.url}")
@@ -61,20 +65,36 @@ def request_first_pages(n_pages: int):
         scrape_page(html_doc)
 
 
-def main():
+def parse_arguments():
+    """
+    Parse the cli arguments given by the user.
+    Returns:
+        parser: parser object containing arguments and their values
+    """
     parser = argparse.ArgumentParser()
-    parser.add_argument("-v", "--verbose", action="store_true", required=False, help="Outputs more information while scraping")
-    parser.add_argument("-c", "--count", required=False, help="Amount of pages to scrape. Default is 3.")
-    parser.add_argument("-y", "--year", required=False, help="Year of album release to filter")
-    args = parser.parse_args()
+    parser.add_argument("-v", "--verbose", required=False, action="store_true",
+                        help="Outputs more information while scraping")
+    parser.add_argument("-c", "--count", required=False, type=int, default=3,
+                        help="Amount of pages to scrape. Default is 3.")
+    parser.add_argument("-y", "--year", required=False, type=int,
+                        help="Year of album release to filter")
+    parser.add_argument("-t", "--type", required=False, type=str.lower, default="albums",
+                        help="'albums' or 'artists'")
+    return parser
 
-    if args.count:
-        page_count = int(args.count)
+
+def main():
+    parser = parse_arguments()
+    args = vars(parser.parse_args())
+    t = args.pop("type")
+    if t == "albums":
+        request_albums(**args)
+    elif t == "artists":
+        # add artists scraping ?
+        pass
     else:
-        page_count = 3
-        print("Scraping 3 pages by default")
-
-    request_first_pages(page_count)
+        print("Error: Expected 'albums' or 'artists'.\n")
+        parser.print_help()
 
 
 if __name__ == "__main__":
