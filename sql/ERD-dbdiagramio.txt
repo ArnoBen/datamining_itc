@@ -1,0 +1,49 @@
+Table Song { 
+  id int [pk, increment]
+  title varchar
+  album_id id
+  songtime int // seconds
+}
+
+Table Album { 
+  id int [pk, increment]
+  year datetime
+  name varchar
+}
+
+Table Artist { 
+  id int [pk, increment]
+  first_name varchar 
+  last_name varchar 
+  nickname varchar 
+  description varchar
+}
+
+
+Table AlbumArtist { 
+  artist_id int
+  album_id int
+}
+
+Table Genre { 
+  id int [pk, increment]
+  name varchar
+}
+
+Table GenreAlbum {
+  album_id int
+  genre_id int8
+}
+
+Ref: GenreAlbum.album_id > Album.id
+Ref: GenreAlbum.genre_id > Genre.id
+
+// each songs belongs to one album
+Ref: Song.album_id > Album.id
+
+// each artist can have many albums
+// each album can have many artists
+Ref: AlbumArtist.artist_id > Artist.id
+Ref: AlbumArtist.album_id > Album.id
+
+
