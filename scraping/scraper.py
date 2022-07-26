@@ -2,6 +2,9 @@ import logging
 import itertools
 
 import grequests
+from requests import Response
+from multiprocessing import Pool
+import tqdm
 from bs4 import BeautifulSoup
 from utils import minutes_sec_2_sec
 
@@ -11,6 +14,7 @@ class Scraper:
     BASE_OPTIONS = "/search/?limit=50&sort=have%2Cdesc&ev=em_rs&type=master&layout=sm"
     URL = BASE_URL + BASE_OPTIONS
     BATCH_SIZE = 50
+    PROCESSES = 8
 
     def __init__(self, count: int = 3, year: int = None):
         """
@@ -79,17 +83,21 @@ class Scraper:
         """
         albums_data = []
         urls = (self.BASE_URL + album["url"] for album in albums)
-        # Batching by groups of 10 requests:
+
+        # Batching requests:
         while True:
             batch = list(itertools.islice(urls, self.BATCH_SIZE))
             if not batch:
                 break
             requests_results = self._request_albums_songs(batch)
-            for result in requests_results:
-                self.Logger.info(f"Scraping album {len(albums_data) + 1}/{len(albums)}: {result.url}")
-                album_data = self._scrape_albums_songs_page(result.text)
-                albums_data.append(album_data)
-
+            # Scraping pages with multiprocessing for speed
+            self.Logger.info(f"Scraping albums {len(albums_data) + len(batch)}/{len(albums)}")
+            with Pool(self.PROCESSES) as p:
+                album_data = list(tqdm.tqdm(
+                    # Wrapping the multiprocessing in tqdm to show progress bar
+                    p.imap(self._scrape_albums_songs_page, requests_results), total=len(batch))
+                )
+            albums_data += album_data
         # Creating a new album dict with more information:
         albums_complete = []
         for album, album_data in zip(albums, albums_data):
@@ -104,13 +112,14 @@ class Scraper:
             albums_complete.append(full_data)
         return albums_complete
 
-    @staticmethod
-    def _scrape_albums_songs_page(html_page: str):
+    def _scrape_albums_songs_page(self, response: Response):
         """
         Scrapes the given discogs page of an album
         Args:
-            html_page: discogs html page to scrape
+            response: request response containing discogs html page to scrape
         """
+        self.Logger.debug(f"Scraping album : {response.url}")
+        html_page = response.text
         soup = BeautifulSoup(html_page, features="html.parser")
         info = soup.find("tbody").find_all("th")
         genre = info[0].find_next_sibling().text

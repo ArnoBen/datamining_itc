@@ -3,6 +3,7 @@
 
 import logging
 import argparse
+import time
 from scraping import Scraper
 
 
@@ -25,6 +26,7 @@ def parse_arguments():
 
 
 def main():
+    start = time.time()
     parser = parse_arguments()
     args = vars(parser.parse_args())
     log_level = logging.DEBUG if args.pop("debug") else logging.INFO
@@ -35,7 +37,7 @@ def main():
     albums = scraper.scrape_albums()
     albums = scraper.scrape_albums_songs(albums)
     print(f"Scraped {len(albums)} albums containing a total of {sum(len(album['tracks']) for album in albums)} tracks.")
-
+    print(f"Process completed in {time.time() - start} seconds")
 
 if __name__ == "__main__":
     main()
