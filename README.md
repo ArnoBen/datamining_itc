@@ -32,11 +32,11 @@ We also registered to Spotify for Developers which provides a powerful API.
 ### Scraping Discogs
 
 ```
-usage: discogs.py [-h] [-v] [-s] [-c COUNT] [-y YEAR]
+usage: discogs.py [-h] [-d] [-s] [-c COUNT] [-y YEAR]
 
 options:
   -h, --help            show this help message and exit
-  -v, --verbose         outputs more information while scraping
+  -d, --d               set log level to debug
   -s, --save            save the scraped information in a database
   -c COUNT, --count COUNT
                         amount of pages to scrape (default: 3)
