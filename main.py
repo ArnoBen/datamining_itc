@@ -32,7 +32,9 @@ def main():
 
     save = args.pop("save")  # bool that we will use when we implement the storage in db
     scraper = Scraper(**args)
-    scraper.scrape_album_pages()
+    albums = scraper.scrape_albums()
+    albums = scraper.scrape_albums_songs(albums)
+    print(f"Scraped {len(albums)} albums containing a total of {sum(len(album['tracks']) for album in albums)} tracks.")
 
 
 if __name__ == "__main__":
