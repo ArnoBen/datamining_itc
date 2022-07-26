@@ -15,3 +15,8 @@ CREATE DATABASE IF NOT EXISTS datamining_itc_music ;
 (base) ➜  datamining_itc git:(cli) ✗ cat sql/create-db.sh
 cat *SQL | mysql -u root -p
 ```
+
+# Dbdiagram
+
+The ERD and associated SQL was generated from https://dbdiagram.io/d/62de8b910d66c74655454668 
+
