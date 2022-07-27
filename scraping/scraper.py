@@ -94,20 +94,19 @@ class Scraper:
         albums_data = []
         urls = (self.BASE_URL + album["url"] for album in albums)
 
-        while True:
-            # Batching requests:
-            batch = list(itertools.islice(urls, self.BATCH_SIZE))
-            if not batch:
-                break
-            response = self._request_albums_songs(batch)
-            # Scraping pages with multiprocessing for speed
-            self.Logger.info(f"Scraping albums {len(albums_data) + len(batch)}/{len(albums)}")
-            with Pool(self.PROCESSES) as p:
-                album_data = list(
-                    # Wrapping the multiprocessing in tqdm to show progress bar
-                    tqdm(p.imap(self._scrape_albums_songs_page, response), total=len(batch))
-                )
-            albums_data += album_data
+        with tqdm(total=len(albums)) as pbar:
+            while True:
+                # Batching requests:
+                batch = list(itertools.islice(urls, self.BATCH_SIZE))
+                if not batch:
+                    break
+                response = self._request_albums_songs(batch)
+                # Scraping pages with multiprocessing for speed
+                self.Logger.debug(f"Scraping albums {len(albums_data) + len(batch)}/{len(albums)}")
+                with Pool(self.PROCESSES) as p:
+                    album_data = p.map(self._scrape_albums_songs_page, response)
+                albums_data += album_data
+                pbar.update(len(batch))
         # Creating a new album dict with more information:
         albums_complete = []
         for album, album_data in zip(albums, albums_data):
@@ -193,7 +192,7 @@ class Scraper:
         Returns:
             list: htmls of pages to scrape
         """
-        self.Logger.info(f"Requesting {len(urls)} album pages")
+        self.Logger.debug(f"Requesting {len(urls)} album pages")
         session = requests_session.get_session()
         rs = (grequests.get(url, stream=False, session=session) for url in urls)
         responses = grequests.map(rs)
