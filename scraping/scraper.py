@@ -2,10 +2,11 @@ import logging
 import itertools
 
 import grequests
-from requests import Response
 from multiprocessing import Pool
 from tqdm import tqdm
 from bs4 import BeautifulSoup
+
+from utils.requests_session import get_session
 from utils import minutes_sec_2_sec, requests_session
 
 
@@ -35,24 +36,25 @@ class Scraper:
             list: albums containing name, artist and url
         """
         albums = []
-        requests_results = self._request_albums()
-        for i, result in enumerate(requests_results):
-            self.Logger.info(f"Scraping page {i + 1}/{len(requests_results)}: {result.url}")
-            albums_page = self._scrape_albums_page(result)
+        responses = self._request_albums()
+        for i, response in enumerate(responses):
+            html_page, url, status_code = response
+            self.Logger.info(f"Scraping page {i + 1}/{len(responses)}: {url}")
+            albums_page = self._scrape_albums_page(response)
             for album in albums_page:
                 albums.append(album)
         return albums
 
-    def _scrape_albums_page(self, response: Response):
+    def _scrape_albums_page(self, response: tuple):
         """
         Scrapes the given discogs page of album list
         Args:
-            response (Response): request response containing discogs html page to scrape
+            response (tuple): request response containing (html, url, status_code)
         """
+        html_page, url, status_code = response
         try:
-            html_page = response.text
             if not html_page:
-                raise ValueError(f"HTML page empty, request response code {response.status_code}")
+                raise ValueError(f"HTML page empty, request response code {status_code}")
             soup = BeautifulSoup(html_page, features="html.parser")
             cards_layout = soup.find("ul", {"class": "cards cards_layout_text-only"})
             soup_cards = BeautifulSoup(str(cards_layout), features="html.parser")
@@ -77,8 +79,8 @@ class Scraper:
             return albums_page
 
         except Exception as e:
-            self.Logger.error(f"\nAn error occurred when scraping page {response.url}: {e}")
-            self.errors.append((response.url, e.__traceback__))
+            self.Logger.error(f"\nAn error occurred when scraping page {url}: {e}")
+            self.errors.append((url, e.__traceback__))
 
     def scrape_albums_songs(self, albums: list):
         """
@@ -109,6 +111,9 @@ class Scraper:
         # Creating a new album dict with more information:
         albums_complete = []
         for album, album_data in zip(albums, albums_data):
+            if album_data is None:  # Happens when an error occurred during a request
+                self.Logger.warning(f"\nIgnoring empty album_data for {album.get('url', None)}")
+                continue
             full_data = {
                 'name': album.get('name', None),
                 'artist': album.get('artist', None),
@@ -120,17 +125,17 @@ class Scraper:
             albums_complete.append(full_data)
         return albums_complete
 
-    def _scrape_albums_songs_page(self, response: Response):
+    def _scrape_albums_songs_page(self, response: tuple):
         """
         Scrapes the given discogs page of an album
         Args:
-            response (Response): request response containing discogs html page to scrape
+            response (tuple): request response containing (html, url, status_code)
         """
+        html_page, url, status_code = response
         try:
-            self.Logger.debug(f"Scraping album : {response.url}")
-            html_page = response.text
+            self.Logger.debug(f"Scraping album : {url}")
             if not html_page:
-                raise ValueError(f"HTML page empty, request response code {response.status_code}")
+                raise ValueError(f"HTML page empty, request response code {status_code}")
             soup = BeautifulSoup(html_page, features="html.parser")
             info = soup.find("tbody").find_all("th")
             genre = info[0].find_next_sibling().text
@@ -156,8 +161,9 @@ class Scraper:
             return album_data
 
         except Exception as e:
-            self.Logger.error(f"\nAn error occurred when scraping page {response.url}: {e}")
-            self.errors.append((response.url, e.__traceback__))
+            print("\n")
+            self.Logger.error(f"\nAn error occurred when scraping page {url}: {e}")
+            self.errors.append((url, e.__traceback__))
 
     def _request_albums(self):
         """
@@ -169,18 +175,11 @@ class Scraper:
                          (f" released in {self.year}" if self.year else ""))
         year_param = f"&year={self.year}" if self.year else ""
         pages = [self.URL + year_param + f"&page={page}" for page in range(1, self.count + 1)]
-        track_requests = tqdm(total=len(pages))
-
-        def request_fulfilled(r, *args, **kwargs):
-            """Allows for tdqm to track the progress"""
-            track_requests.update()
-
-        session = requests_session.get_session(request_fulfilled)
+        session = get_session()
         rs = (grequests.get(page, stream=False, session=session) for page in pages)
         responses = grequests.map(rs)
-        track_requests.close()
         for response in responses: response.close()
-        return responses
+        return [(response.text, response.url, response.status_code) for response in responses]
 
     def _request_albums_songs(self, urls: list):
         """
@@ -195,13 +194,11 @@ class Scraper:
             list: htmls of pages to scrape
         """
         self.Logger.info(f"Requesting {len(urls)} album pages")
-        track_requests = tqdm(total=len(urls))
-        session = requests_session.get_session(track_requests)
+        session = requests_session.get_session()
         rs = (grequests.get(url, stream=False, session=session) for url in urls)
         responses = grequests.map(rs)
-        track_requests.close()
         for response in responses: response.close()
-        return responses
+        return [(response.text, response.url, response.status_code) for response in responses]
 
     def print_errors(self):
         if self.errors:
