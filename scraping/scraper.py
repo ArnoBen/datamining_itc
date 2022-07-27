@@ -104,9 +104,9 @@ class Scraper:
                 # Scraping pages with multiprocessing for speed
                 self.Logger.debug(f"Scraping albums {len(albums_data) + len(batch)}/{len(albums)}")
                 with Pool(self.PROCESSES) as p:
-                    album_data = p.map(self._scrape_albums_songs_page, response)
-                albums_data += album_data
-                pbar.update(len(batch))
+                    for album_data in p.imap(self._scrape_albums_songs_page, response):
+                        albums_data.append(album_data)
+                        pbar.update()
         # Creating a new album dict with more information:
         albums_complete = []
         for album, album_data in zip(albums, albums_data):
