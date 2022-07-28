@@ -1,5 +1,7 @@
 import logging
 import itertools
+from queue import Queue
+from threading import Thread
 
 import grequests
 from multiprocessing import Pool
@@ -15,7 +17,7 @@ class Scraper:
     BASE_OPTIONS = "/search/?limit=50&sort=have%2Cdesc&ev=em_rs&type=master&layout=sm"
     URL = BASE_URL + BASE_OPTIONS
     BATCH_SIZE = 50
-    PROCESSES = 8
+    PROCESSES = 4
 
     def __init__(self, count: int = 3, year: int = None):
         """
@@ -93,20 +95,27 @@ class Scraper:
         """
         albums_data = []
         urls = (self.BASE_URL + album["url"] for album in albums)
+        responses_queue = Queue()
 
-        with tqdm(total=len(albums)) as pbar:
+        def download_pages(_urls, q):
             while True:
-                # Batching requests:
-                batch = list(itertools.islice(urls, self.BATCH_SIZE))
+                batch = list(itertools.islice(_urls, self.BATCH_SIZE))
                 if not batch:
                     break
-                response = self._request_albums_songs(batch)
-                # Scraping pages with multiprocessing for speed
-                self.Logger.debug(f"Scraping albums {len(albums_data) + len(batch)}/{len(albums)}")
+                for response in self._request_albums_songs(batch): q.put(response)
+
+        worker = Thread(target=download_pages, args=(urls, responses_queue))
+        worker.setDaemon(True)
+        worker.start()
+        with tqdm(total=len(albums)) as pbar:
+            while worker.is_alive() or not responses_queue.empty():
+                # Batching processing
+                queue_batch = [responses_queue.get(block=True) for i in range(min(self.PROCESSES, responses_queue.qsize()))]
                 with Pool(self.PROCESSES) as p:
-                    for album_data in p.imap(self._scrape_albums_songs_page, response):
+                    for album_data in p.imap(self._scrape_albums_songs_page, queue_batch):
                         albums_data.append(album_data)
                         pbar.update()
+
         # Creating a new album dict with more information:
         albums_complete = []
         for album, album_data in zip(albums, albums_data):
