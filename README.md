@@ -32,7 +32,7 @@ We also registered to Spotify for Developers which provides a powerful API.
 ### Scraping Discogs
 
 ```
-usage: main.py [-h] [-d] [-s] [-c COUNT] [-y YEAR]
+usage: main.py [-h] [-d] [-s] [-c COUNT] [-y YEAR] [-o CORES]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -41,6 +41,8 @@ optional arguments:
   -c COUNT, --count COUNT
                         amount of pages to scrape (default: 3)
   -y YEAR, --year YEAR  year of album release to filter
+  -o CORES, --cores CORES
+                        Amount of CPU cores to use for multiprocessed scraping
 ```
 
 This will scrape the albums pages in discogs starting from [this page](https://www.discogs.com/search/?limit=50&sort=have%2Cdesc&ev=em_rs&type=master&layout=sm)

@@ -1,23 +1,23 @@
-import logging
 import itertools
+import logging
 import time
+from multiprocessing import Pool
 from queue import Queue
 from threading import Thread
 
 import grequests
-from multiprocessing import Pool
-from tqdm import tqdm
 from bs4 import BeautifulSoup
+from tqdm import tqdm
 
-from utils.requests_session import get_session
 from utils import minutes_sec_2_sec, requests_session
+from utils.requests_session import get_session
 
 
 class Scraper:
     BASE_URL = "https://www.discogs.com"
-    BASE_OPTIONS = "/search/?limit=50&sort=have%2Cdesc&ev=em_rs&type=master&layout=sm"
+    BASE_OPTIONS = "/search/?limit=100&sort=have%2Cdesc&ev=em_rs&type=master&layout=sm"
     URL = BASE_URL + BASE_OPTIONS
-    BATCH_SIZE = 50
+    BATCH_SIZE = 100
 
     def __init__(self, count: int = 3, year: int = None, cores: int = 4):
         """
@@ -41,9 +41,9 @@ class Scraper:
         """
         albums = []
         responses = self._request_albums()
-        for i, response in enumerate(responses):
+        for i, response in tqdm(enumerate(responses), total=len(responses)):
             html_page, url, status_code = response
-            self.Logger.info(f"Scraping page {i + 1}/{len(responses)}: {url}")
+            self.Logger.debug(f"Scraping page {i + 1}/{len(responses)}: {url}")
             albums_page = self._scrape_albums_page(response)
             for album in albums_page:
                 albums.append(album)
@@ -95,6 +95,7 @@ class Scraper:
         Returns:
             list: albums containing name, artist, url, genre, year and tracklist
         """
+        self.Logger.info(f"Scraping {len(albums)} albums")
         albums_data = []
         urls = (self.BASE_URL + album["url"] for album in albums)
         responses_queue = Queue()
