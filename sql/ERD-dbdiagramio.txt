@@ -1,31 +1,28 @@
-Table Song { 
+Table Track {
   id int [pk, increment]
   title varchar
+  duration int // seconds
   album_id id
-  songtime int // seconds
 }
 
-Table Album { 
+Table Album {
   id int [pk, increment]
   year datetime
   name varchar
 }
 
-Table Artist { 
+Table Artist {
   id int [pk, increment]
-  first_name varchar 
-  last_name varchar 
-  nickname varchar 
-  description varchar
+  name varchar
 }
 
 
-Table AlbumArtist { 
+Table AlbumArtist {
   artist_id int
   album_id int
 }
 
-Table Genre { 
+Table Genre {
   id int [pk, increment]
   name varchar
 }
@@ -39,11 +36,9 @@ Ref: GenreAlbum.album_id > Album.id
 Ref: GenreAlbum.genre_id > Genre.id
 
 // each songs belongs to one album
-Ref: Song.album_id > Album.id
+Ref: Track.album_id > Album.id
 
 // each artist can have many albums
 // each album can have many artists
 Ref: AlbumArtist.artist_id > Artist.id
 Ref: AlbumArtist.album_id > Album.id
-
-
