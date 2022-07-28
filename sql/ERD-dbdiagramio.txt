@@ -2,7 +2,7 @@ Table Track {
   id int [pk, increment]
   title varchar
   duration int // seconds
-  album_id id
+  album_id int
 }
 
 Table Album {
@@ -23,7 +23,7 @@ Table AlbumArtist {
 }
 
 Table Genre {
-  id int [pk, increment]
+  id int8 [pk, increment]
   name varchar
 }
 
