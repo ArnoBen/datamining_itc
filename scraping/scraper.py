@@ -1,5 +1,6 @@
 import logging
 import itertools
+import time
 from queue import Queue
 from threading import Thread
 
@@ -17,7 +18,6 @@ class Scraper:
     BASE_OPTIONS = "/search/?limit=50&sort=have%2Cdesc&ev=em_rs&type=master&layout=sm"
     URL = BASE_URL + BASE_OPTIONS
     BATCH_SIZE = 50
-    PROCESSES = 4
 
     def __init__(self, count: int = 3, year: int = None, cores: int = 4):
         """
@@ -112,8 +112,14 @@ class Scraper:
         with tqdm(total=len(albums)) as pbar:
             while worker.is_alive() or not responses_queue.empty():
                 # Batching processing
-                queue_batch = [responses_queue.get(block=True) for i in range(min(self.PROCESSES, responses_queue.qsize()))]
-                with Pool(self.PROCESSES) as p:
+                while worker.is_alive():
+                    # While the queue is filling, waits for the queue to have at least
+                    # n_cores elements before pooling the processing (optimization)
+                    if responses_queue.qsize() >= self.n_cores:
+                        break
+                    time.sleep(0.001)
+                queue_batch = [responses_queue.get(block=True) for i in range(min(self.n_cores, responses_queue.qsize()))]
+                with Pool(self.n_cores) as p:
                     for album_data in p.imap(self._scrape_albums_songs_page, queue_batch):
                         albums_data.append(album_data)
                         pbar.update()

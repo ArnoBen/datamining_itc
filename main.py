@@ -37,9 +37,11 @@ def main():
     save = args.pop("save")  # bool that we will use when we implement the storage in db
     scraper = Scraper(**args)
     albums = scraper.scrape_albums()
+    start_albums_scraping = time.time()
     albums = scraper.scrape_albums_songs(albums)
     print(f"Scraped {len(albums)} albums containing a total of {sum(len(album['tracks']) for album in albums)} tracks.")
-    print(f"Process completed in {time.time() - start} seconds")
+    print(f"Album scraping completed in {time.time() - start_albums_scraping} seconds")
+    print(f"Total process completed in {time.time() - start} seconds")
     scraper.print_errors()  # outputs urls of pages that raised an error during scraping
 
 
