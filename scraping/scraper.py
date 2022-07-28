@@ -19,17 +19,19 @@ class Scraper:
     BATCH_SIZE = 50
     PROCESSES = 4
 
-    def __init__(self, count: int = 3, year: int = None):
+    def __init__(self, count: int = 3, year: int = None, cores: int = 4):
         """
         Scraping class for Discogs.
         Args:
             count (int): number of pages to request
             year (int): year to filter
+            cores (int): cpu cores to use for multiprocessing
         """
         self.Logger = logging.getLogger(__name__)
         self.count = count
         self.year = year
         self.errors = []
+        self.n_cores = cores
 
     def scrape_albums(self):
         """

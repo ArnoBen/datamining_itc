@@ -22,6 +22,8 @@ def parse_arguments():
                         help="amount of pages to scrape (default: 3) ")
     parser.add_argument("-y", "--year", required=False, type=int,
                         help="year of album release to filter")
+    parser.add_argument("-o", "--cores", required=False, type=int, default=4,
+                        help="Amount of CPU cores to use for multiprocessed scraping")
     return parser
 
 
