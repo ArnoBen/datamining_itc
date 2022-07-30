@@ -4,20 +4,20 @@ CREATE DATABASE IF NOT EXISTS datamining_itc_music;
 USE datamining_itc_music;
 
 CREATE TABLE `Track` (
-  `id` int PRIMARY KEY AUTO_INCREMENT,
+  `id` int PRIMARY KEY,
   `title` varchar(255),
   `duration` int,
   `album_id` int
 );
 
 CREATE TABLE `Album` (
-  `id` int PRIMARY KEY AUTO_INCREMENT,
-  `year` datetime,
+  `id` int PRIMARY KEY,
+  `year` int,
   `name` varchar(255)
 );
 
 CREATE TABLE `Artist` (
-  `id` int PRIMARY KEY AUTO_INCREMENT,
+  `id` int PRIMARY KEY,
   `name` varchar(255)
 );
 
@@ -27,13 +27,13 @@ CREATE TABLE `AlbumArtist` (
 );
 
 CREATE TABLE `Genre` (
-  `id` int8 PRIMARY KEY AUTO_INCREMENT,
+  `id` int PRIMARY KEY,
   `name` varchar(255)
 );
 
 CREATE TABLE `GenreAlbum` (
   `album_id` int,
-  `genre_id` int8
+  `genre_id` int
 );
 
 ALTER TABLE `GenreAlbum` ADD FOREIGN KEY (`album_id`) REFERENCES `Album` (`id`);
