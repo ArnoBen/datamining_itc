@@ -48,8 +48,14 @@ This will scrape the albums pages in discogs starting from [this page](https://w
 ### Database Architecture
 
 ![Database ERD](sql/ERD.png)
+*Generated from https://dbdiagram.io/d/62e28addf31da965e832fdce*
 
-The database can be created by running the `create-db.sh` script in the sql folder.
+To build the database tables, run:
+```commandline
+mysql -u root -p < sql/create_music_tables.sql
+```
+
+Or run the provided script `create_db.sh` in the sql folder.
 
 Nb: The object's ids are obtained with a custom deterministic hash using hashlib.md5.
 

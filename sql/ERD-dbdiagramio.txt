@@ -1,35 +1,35 @@
 Table Track {
-  id int [pk, increment]
+  id varchar [pk]
   title varchar
   duration int // seconds
-  album_id int
+  album_id varchar
 }
 
 Table Album {
-  id int [pk, increment]
-  year datetime
+  id varchar [pk]
+  year int
   name varchar
 }
 
 Table Artist {
-  id int [pk, increment]
+  id varchar [pk]
   name varchar
 }
 
 
 Table AlbumArtist {
-  artist_id int
-  album_id int
+  album_id varchar
+  artist_id varchar
 }
 
 Table Genre {
-  id int8 [pk, increment]
+  id varchar [pk]
   name varchar
 }
 
 Table GenreAlbum {
-  album_id int
-  genre_id int8
+  genre_id varchar
+  album_id varchar
 }
 
 Ref: GenreAlbum.album_id > Album.id
