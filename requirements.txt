@@ -6,3 +6,4 @@ python-dotenv==0.20.0
 requests>=2.28.1,<2.29
 spotipy>=2.20.0,<2.21
 urllib3>=1.26.9
+pymysql>=1.0.2,<2.0

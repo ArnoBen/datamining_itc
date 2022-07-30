@@ -21,55 +21,61 @@ class DatabaseManager:
         Args:
             album_dict (dict): dictionary containing the album data
         """
-        db_data = self.extract_album_data(album_dict)
-        self.insert_album(db_data["album"])
-        self.insert_artist(db_data["artist"])
-        self.insert_genre(db_data["genre"])
-        self.insert_tracks(db_data["tracks"])
-        self.insert_album_artist(db_data["album_artist"])
-        self.insert_genre_album(db_data["genre_album"])
+        db_data = self._extract_album_data(album_dict)
+        self._insert_album(db_data["album"])
+        self._insert_artist(db_data["artist"])
+        self._insert_genre(db_data["genre"])
+        self._insert_tracks(db_data["tracks"])
+        self._insert_album_artist(db_data["album_artist"])
+        self._insert_genre_album(db_data["genre_album"])
         self.connection.commit()
 
-    def insert_album(self, album: DbAlbum):
-        if not self.already_exists("Album", album.id):
+    def _insert_album(self, album: DbAlbum):
+        """Inserts an album into the database"""
+        if not self._already_exists("Album", album.id):
             query = "INSERT INTO Album VALUES (%s, %s, %s)"
             values = (album.id, album.year, album.name)
             self.cursor.execute(query, values)
 
-    def insert_artist(self, artist:  DbArtist):
-        if not self.already_exists("Artist", artist.id):
+    def _insert_artist(self, artist:  DbArtist):
+        """Insert an artist into the database"""
+        if not self._already_exists("Artist", artist.id):
             query = "INSERT INTO Artist VALUES (%s, %s)"
             values = (artist.id, artist.name)
             self.cursor.execute(query, values)
 
-    def insert_genre(self, genre: DbGenre):
-        if not self.already_exists("Genre", genre.id):
+    def _insert_genre(self, genre: DbGenre):
+        """Insert a genre into the database"""
+        if not self._already_exists("Genre", genre.id):
             query = "INSERT INTO Genre VALUES (%s, %s)"
             values = (genre.id, genre.name)
             self.cursor.execute(query, values)
 
-    def insert_tracks(self, tracks: list[DbTrack]):
+    def _insert_tracks(self, tracks: list[DbTrack]):
+        """Insert a track list into the database"""
         query = "INSERT INTO Track VALUES (%s, %s, %s, %s)"
         for db_track in tracks:
-            if not self.already_exists("Track", db_track.id):
+            if not self._already_exists("Track", db_track.id):
                 value = (db_track.id, db_track.title[:255], db_track.duration, db_track.album_id)
                 self.cursor.execute(query, value)
 
-    def insert_album_artist(self, album_artist: DbAlbumArtist):
-        if not self.already_exists_join("AlbumArtist", "album_id", "artist_id",
-                                        album_artist.album_id, album_artist.artist_id):
+    def _insert_album_artist(self, album_artist: DbAlbumArtist):
+        """Insert an album-artist join row into the database"""
+        if not self._already_exists_join("AlbumArtist", "album_id", "artist_id",
+                                         album_artist.album_id, album_artist.artist_id):
             query = "INSERT INTO AlbumArtist VALUES (%s, %s)"
             values = (album_artist.album_id, album_artist.artist_id)
             self.cursor.execute(query, values)
 
-    def insert_genre_album(self, genre_album: DbGenreAlbum):
-        if not self.already_exists_join("GenreAlbum", "genre_id", "album_id",
-                                        genre_album.genre_id, genre_album.album_id):
+    def _insert_genre_album(self, genre_album: DbGenreAlbum):
+        """Insert a genre-album join row into the database"""
+        if not self._already_exists_join("GenreAlbum", "genre_id", "album_id",
+                                         genre_album.genre_id, genre_album.album_id):
             query = "INSERT INTO GenreAlbum VALUES (%s, %s)"
             values = (genre_album.genre_id, genre_album.album_id)
             self.cursor.execute(query, values)
 
-    def already_exists(self, table_name: str, checked_id: str):
+    def _already_exists(self, table_name: str, checked_id: str):
         """
         Checks if a row already exists
         Args:
@@ -84,7 +90,7 @@ class DatabaseManager:
         self.cursor.execute(query)
         return len(self.cursor.fetchall()) > 0
 
-    def already_exists_join(self, table_name: str, col1: str, col2: str, id1: str, id2: str):
+    def _already_exists_join(self, table_name: str, col1: str, col2: str, id1: str, id2: str):
         """
         Checks if a row already exists in a join table between two elements
         Args:
@@ -102,9 +108,9 @@ class DatabaseManager:
         return len(self.cursor.fetchall()) > 0
 
     @staticmethod
-    def extract_album_data(album_dict: dict):
+    def _extract_album_data(album_dict: dict):
         """
-        Creates instances of database objects that will make the db insertion easier
+        Creates instances of database objects that will make the db _insertion easier
         Args:
             album_dict (dict): dictionary containing the following data:
                 'name': str
@@ -136,8 +142,3 @@ class DatabaseManager:
             "genre_album": db_genre_album
         }
         return db_data
-
-
-if __name__ == "__main__":
-    dbmanager = DatabaseManager()
-    print(dbmanager)
