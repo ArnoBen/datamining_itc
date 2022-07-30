@@ -4,36 +4,36 @@ CREATE DATABASE IF NOT EXISTS datamining_itc_music;
 USE datamining_itc_music;
 
 CREATE TABLE `Track` (
-  `id` int PRIMARY KEY,
+  `id` varchar(255) PRIMARY KEY,
   `title` varchar(255),
   `duration` int,
-  `album_id` int
+  `album_id` varchar(255)
 );
 
 CREATE TABLE `Album` (
-  `id` int PRIMARY KEY,
+  `id` varchar(255) PRIMARY KEY,
   `year` int,
   `name` varchar(255)
 );
 
 CREATE TABLE `Artist` (
-  `id` int PRIMARY KEY,
+  `id` varchar(255) PRIMARY KEY,
   `name` varchar(255)
 );
 
 CREATE TABLE `AlbumArtist` (
-  `artist_id` int,
-  `album_id` int
+  `album_id` varchar(255),
+  `artist_id` varchar(255)
 );
 
 CREATE TABLE `Genre` (
-  `id` int PRIMARY KEY,
+  `id` varchar(255) PRIMARY KEY,
   `name` varchar(255)
 );
 
 CREATE TABLE `GenreAlbum` (
-  `album_id` int,
-  `genre_id` int
+  `genre_id` varchar(255),
+  `album_id` varchar(255)
 );
 
 ALTER TABLE `GenreAlbum` ADD FOREIGN KEY (`album_id`) REFERENCES `Album` (`id`);

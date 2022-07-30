@@ -1,1 +1,1 @@
-cat *SQL | mysql -u root -p
+mysql -u root -p < CREATE-MUSIC-TABLES-ERD-SQL.sql

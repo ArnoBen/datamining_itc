@@ -1,12 +1,16 @@
 #!/usr/bin/python3.9
 # -*- coding: utf-8 -*-
 
-import logging
 import argparse
+import logging
 import time
+
+from tqdm import tqdm
+from dotenv import load_dotenv
+
 from scraping import Scraper
 from sql.database_manager import DatabaseManager
-from dotenv import load_dotenv
+
 load_dotenv()
 
 
@@ -48,7 +52,10 @@ def main():
     scraper.print_errors()  # outputs urls of pages that raised an error during scraping
 
     if save:
+        logging.info("Saving data into database")
         dbmanager = DatabaseManager()
+        for album in tqdm(albums, total=len(albums)):
+            dbmanager.insert_data_from_album(album)
 
 
 if __name__ == "__main__":
