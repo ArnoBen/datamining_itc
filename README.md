@@ -7,8 +7,6 @@ Datamining and webscraping project where we will perform webscraping on Discogs 
 We are using [this Discogs page](https://www.discogs.com/search/?sort=have%2Cdesc&ev=em_rs&type=master)
 which provides a table of albums-artists ranked by most popular of all time (called "Most Collected").
 
-For now we are only scraping the pages. Afterwards, we will request the page for each album and scrap it as well.
-
 We also registered to Spotify for Developers which provides a powerful API.
 
 ## Versions
@@ -46,6 +44,12 @@ optional arguments:
 ```
 
 This will scrape the albums pages in discogs starting from [this page](https://www.discogs.com/search/?limit=50&sort=have%2Cdesc&ev=em_rs&type=master&layout=sm)
+
+### Database Architecture
+
+![Database ERD](sql/ERD.png)
+
+The database can be created by running the `create-db.sh` script in the sql folder.
 
 ### Spotify queries
 
