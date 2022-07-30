@@ -40,7 +40,7 @@ optional arguments:
                         amount of pages to scrape (default: 3)
   -y YEAR, --year YEAR  year of album release to filter
   -o CORES, --cores CORES
-                        Amount of CPU cores to use for multiprocessed scraping
+                        Amount of CPU cores to use for multiprocessed scraping (default: 4)
 ```
 
 This will scrape the albums pages in discogs starting from [this page](https://www.discogs.com/search/?limit=50&sort=have%2Cdesc&ev=em_rs&type=master&layout=sm)
@@ -50,6 +50,8 @@ This will scrape the albums pages in discogs starting from [this page](https://w
 ![Database ERD](sql/ERD.png)
 
 The database can be created by running the `create-db.sh` script in the sql folder.
+
+Nb: The object's ids are obtained with a custom deterministic hash using hashlib.md5.
 
 ### Spotify queries
 
