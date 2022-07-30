@@ -90,7 +90,7 @@ class Scraper:
         """
         Scrapes each album's individual page
         Args:
-            albums: list containing basic album information and their dedicated discogs url that will be scraped.
+            albums (list): list containing basic album information and their dedicated discogs url that will be scraped.
 
         Returns:
             list: albums containing name, artist, url, genre, year and tracklist

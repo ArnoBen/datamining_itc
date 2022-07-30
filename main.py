@@ -5,8 +5,8 @@ import argparse
 import logging
 import time
 
-from tqdm import tqdm
 from dotenv import load_dotenv
+from tqdm import tqdm
 
 from scraping import Scraper
 from sql.database_manager import DatabaseManager
@@ -48,14 +48,15 @@ def main():
     albums = scraper.scrape_albums_songs(albums)
     logging.info(f"Scraped {len(albums)} albums containing a total of {sum(len(album['tracks']) for album in albums)} tracks.")
     logging.info(f"Album scraping completed in {time.time() - start_albums_scraping} seconds")
-    logging.info(f"Total process completed in {time.time() - start} seconds")
     scraper.print_errors()  # outputs urls of pages that raised an error during scraping
-
     if save:
+        start_db_saving = time.time()
         logging.info("Saving data into database")
         dbmanager = DatabaseManager()
         for album in tqdm(albums, total=len(albums)):
             dbmanager.insert_data_from_album(album)
+        logging.info(f"Database saving completed in {time.time() - start_db_saving} seconds.")
+    logging.info(f"Total process completed in {time.time() - start} seconds")
 
 
 if __name__ == "__main__":
