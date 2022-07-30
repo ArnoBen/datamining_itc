@@ -11,12 +11,15 @@ We also registered to Spotify for Developers which provides a powerful API.
 
 ## Versions
 
-- Python (3.9.12)
-- BeautifulSoup4 (4.11.1)
-- spotipy (2.20.0)
-- Flask (2.1.2) ~ out of scope but fun embedding
+- beautifulsoup4 (4.11.1)
 - grequests (0.6.0)
+- pymysql (1.0.2)
 - python-dotenv (0.20.0)
+- requests (2.28.1)
+- urllib3 (1.26.9)
+- spotipy (2.20.0)
+- Flask (2.1.3) - out of scope but fun embedding
+
 
 ## How to use
 
