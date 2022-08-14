@@ -30,6 +30,24 @@ class DatabaseManager:
         self._insert_genre_album(db_data["genre_album"])
         self.connection.commit()
 
+    def get_tracks(self, size=None):
+        query = """
+        SELECT t.id, t.title, a.name, a2.name 
+        FROM Track t
+            JOIN Album a ON a.id = t.album_id
+            JOIN AlbumArtist aa on aa.album_id = a.id 
+            JOIN Artist a2 on a2.id = aa.artist_id 
+        """
+        if size :
+            query += f" LIMIT {size}"
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        return result
+
+    def insert_data_from_spotify(self, track_id, tempo):
+        query = f"UPDATE Track SET tempo = {tempo} WHERE id = {track_id}"
+        self.cursor.execute(query)
+
     def _insert_album(self, album: DbAlbum):
         """Inserts an album into the database"""
         if not self._already_exists("Album", album.id):
@@ -53,10 +71,10 @@ class DatabaseManager:
 
     def _insert_tracks(self, tracks: list[DbTrack]):
         """Insert a track list into the database"""
-        query = "INSERT INTO Track VALUES (%s, %s, %s, %s)"
+        query = "INSERT INTO Track VALUES (%s, %s, %s, %s, %s)"
         for db_track in tracks:
             if not self._already_exists("Track", db_track.id):
-                value = (db_track.id, db_track.title[:255], db_track.duration, db_track.album_id)
+                value = (db_track.id, db_track.title[:255], db_track.duration, None, db_track.album_id)
                 self.cursor.execute(query, value)
 
     def _insert_album_artist(self, album_artist: DbAlbumArtist):

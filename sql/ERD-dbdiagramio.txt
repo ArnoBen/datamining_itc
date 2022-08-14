@@ -2,6 +2,7 @@ Table Track {
   id varchar [pk]
   title varchar
   duration int // seconds
+  tempo int //bpm
   album_id varchar
 }
 

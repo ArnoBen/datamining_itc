@@ -7,6 +7,7 @@ CREATE TABLE `Track` (
   `id` varchar(255) PRIMARY KEY,
   `title` varchar(255),
   `duration` int,
+  `tempo` int,
   `album_id` varchar(255)
 );
 

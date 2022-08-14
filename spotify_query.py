@@ -30,3 +30,7 @@ def search(query: str):
         }
         result.append(item)
     return result
+
+
+if __name__ == '__main__':
+    search('imagine dragons')
