@@ -14,6 +14,7 @@ class SpotifyWrapper:
         self.headers = self.auth.get_headers()
 
     def search(self, query: str):
+        """Searches spotify with the given query"""
         params = {'q': query, 'limit': 1, 'type': 'track'}
         result = requests.get(self.BASE_URL + 'search', headers=self.headers, params=params)
         data = json.loads(result.text)
@@ -21,6 +22,7 @@ class SpotifyWrapper:
         return track
 
     def get_audio_features(self, track_ids: list):
+        """Gets the audio features of a list of songs from spotify's api"""
         params = {'ids': ','.join(track_ids)}
         result = requests.get(self.BASE_URL + 'audio-features', headers=self.headers, params=params)
         data = json.loads(result.text)

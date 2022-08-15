@@ -35,6 +35,11 @@ def parse_arguments():
 
 
 def scrape_discogs(args: dict):
+    """
+    Scrape discogs webpage and saves it to database if specified
+    Args:
+        args: cli arguments
+    """
     save = args.pop("save")  # bool that we will use when we implement the storage in db
     scraper = Scraper(**args)
     albums = scraper.scrape_albums()
@@ -53,19 +58,27 @@ def scrape_discogs(args: dict):
 
 
 def fill_db_from_spotify(args):
+    """
+    Fills the database with additional information from Spotify
+    Args:
+        args: cli arguments
+    """
     spotify = SpotifyDBFiller()
-    tracks = spotify.get_tracks()
+    tracks = spotify.dbmanager.get_tracks()
     db_ids, spotify_ids, tempos = [], [], []
-    for track in tracks[:10]:
-        db_id, name, album, artist = track
-        db_ids.append(db_id)
-        spotify_id = spotify.get_track_spotify_id(name, album, artist)
-        spotify_ids.append(spotify_id)
-        if len(spotify_ids) == 10:
-            features = spotify.get_audio_features(spotify_ids)
-            tempos = tempos + [int(feature['tempo']) for feature in features]
-            spotify_ids = []
-    spotify.fill_tempos_in_db(db_ids, tempos)
+    for track in tracks:
+        db_id, name, tempo, album, artist = track
+        # Checks if the tempo is not already saved
+        if tempo is None:
+            db_ids.append(db_id)
+            spotify_id = spotify.get_track_spotify_id(name, album, artist)
+            spotify_ids.append(spotify_id)
+            # Every 100 ids (spotify's limit), make a batch request
+            if len(spotify_ids) == 100:
+                features = spotify.get_audio_features(spotify_ids)
+                tempos = tempos + [int(feature['tempo']) for feature in features]
+                spotify.fill_tempos_in_db(db_ids, tempos)
+                spotify_ids = []
 
 
 def main():

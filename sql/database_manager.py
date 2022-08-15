@@ -31,8 +31,17 @@ class DatabaseManager:
         self.connection.commit()
 
     def get_tracks(self, size=None):
+        """
+        Gets tracks from the database
+        Args:
+            size: Applies a limit to the result. Returns all the database if none.
+
+        Returns:
+            tuple(tuple): Tracks information including artist and album
+
+        """
         query = """
-        SELECT t.id, t.title, a.name, a2.name 
+        SELECT t.id, t.title, t.tempo, a.name, a2.name 
         FROM Track t
             JOIN Album a ON a.id = t.album_id
             JOIN AlbumArtist aa on aa.album_id = a.id 
@@ -45,7 +54,8 @@ class DatabaseManager:
         return result
 
     def insert_data_from_spotify(self, track_id, tempo):
-        query = f"UPDATE Track SET tempo = {tempo} WHERE id = {track_id}"
+        """Fill the tempo column of given tracks in the database"""
+        query = f"UPDATE Track SET tempo = {tempo} WHERE id = '{track_id}'"
         self.cursor.execute(query)
 
     def _insert_album(self, album: DbAlbum):

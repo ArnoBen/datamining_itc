@@ -19,15 +19,18 @@ class SpotifyAuth:
         self.access_token = self._get_access_token()
 
     def get_headers(self):
+        """Get authentication and content type headers"""
         headers = self._get_auth_header()
         headers["Content-Type"] = "application/json"
         return headers
 
     def _get_auth_header(self):
+        """Get authentication header"""
         token = self._get_access_token()
         return {"Authorization": "Bearer {0}".format(token)}
 
     def _get_access_token(self):
+        """Get spotify access token using client id and client secret"""
         payload = {"grant_type": "client_credentials"}
         headers = self._make_authorization_headers(
             self._client_id, self._client_secret
@@ -47,6 +50,7 @@ class SpotifyAuth:
 
     @staticmethod
     def _make_authorization_headers(client_id, client_secret):
+        """Formats and encodes the authorization header"""
         auth_header = base64.b64encode((client_id + ":" + client_secret).encode('ascii'))
         return {"Authorization": f"Basic {auth_header.decode('ascii')}"}
 
