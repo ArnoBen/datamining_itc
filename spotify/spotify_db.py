@@ -10,8 +10,11 @@ class SpotifyDBFiller:
     def get_track_spotify_id(self, track_name: str, album: str, artist: str):
         """Search spotify to get the spotify's id of a given song"""
         track_data = self.wrapper.search(f"{track_name} {album} {artist}")
-        track_id = track_data['id']
-        return track_id
+        if track_data:
+            track_id = track_data['id']
+            return track_id
+        else:
+            return None
 
     def get_audio_features(self, ids: list):
         """Gets the audio features of a list of songs from spotify's api"""
@@ -19,10 +22,8 @@ class SpotifyDBFiller:
 
     def fill_tempos_in_db(self, db_ids: list, tempos: list):
         """Fill the tempo column of given tracks in the database"""
-        for d in zip(db_ids, tempos):
-            id, tempo = d
-            self.dbmanager.insert_data_from_spotify(id, tempo)
-
+        args = list(zip(tempos, db_ids))
+        self.dbmanager.insert_tempo_list_from_spotify(args)
 
 
 if __name__ == "__main__":

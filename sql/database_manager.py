@@ -47,16 +47,22 @@ class DatabaseManager:
             JOIN AlbumArtist aa on aa.album_id = a.id 
             JOIN Artist a2 on a2.id = aa.artist_id 
         """
-        if size :
+        if size:
             query += f" LIMIT {size}"
         self.cursor.execute(query)
         result = self.cursor.fetchall()
         return result
 
-    def insert_data_from_spotify(self, track_id, tempo):
+    def insert_tempo_from_spotify(self, track_id, tempo):
         """Fill the tempo column of given tracks in the database"""
         query = f"UPDATE Track SET tempo = {tempo} WHERE id = '{track_id}'"
         self.cursor.execute(query)
+
+    def insert_tempo_list_from_spotify(self, args):
+        """Fill the tempo column of given tracks in the database"""
+        query = "UPDATE Track SET tempo = %s WHERE id = %s"
+        self.cursor.executemany(query, args)
+        self.connection.commit()
 
     def _insert_album(self, album: DbAlbum):
         """Inserts an album into the database"""
