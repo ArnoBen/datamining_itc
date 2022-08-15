@@ -27,7 +27,7 @@ Using virtualenv:
  
 0. virtualenv & activate
 1. install the requirements.txt
-2. `python3 main.py [-h] [-d] [-s] [-c COUNT] [-y YEAR] [-o CORES]`, see chapter below for more information.
+2. `python3 main.py [-h] [-d] [-s] [-c COUNT] [-y YEAR] [-o CORES] [-a] `, see chapter below for more information.
 3. `python3 spotify_server.py` # browser UI
 
 
@@ -37,7 +37,7 @@ Moreover, you will need `CLIENT_ID` and `CLIENT_SECRET` to request Spotify's API
 ### Scraping Discogs
 
 ```
-usage: main.py [-h] [-d] [-s] [-c COUNT] [-y YEAR] [-o CORES]
+usage: main.py [-h] [-d] [-s] [-c COUNT] [-y YEAR] [-o CORES] [-a]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -47,10 +47,14 @@ optional arguments:
                         amount of pages to scrape (default: 3)
   -y YEAR, --year YEAR  year of album release to filter
   -o CORES, --cores CORES
-                        Amount of CPU cores to use for multiprocessed scraping (default: 4)
+                        amount of CPU cores to use for multiprocessed scraping
+                        (default: 4)
+  -a, --api             saves additional data from Spotify api
 ```
 
 This will scrape the albums pages in discogs starting from [this page](https://www.discogs.com/search/?limit=50&sort=have%2Cdesc&ev=em_rs&type=master&layout=sm)
+
+:warning: `-a` is used for Spotify API calls, and any other argument passed will be ignored. See Spotify part of the Readme.
 
 ### Database Architecture
 
@@ -90,10 +94,23 @@ Or run the provided script `create_db.sh` in the sql folder.
 
 Nb: The object's ids are obtained with a custom deterministic hash using hashlib.md5.
 
-### Spotify queries
+
+### Spotify API calls
+
+usage : `python main.py -a`
+
+This command fetches the tracks currently in the database and send queries to spotify following this pattern:
+1. Send search query to spotify containing `[track_title] [album] [artist]`
+2. Spotify provides json list containing track info. Keep id of 1st result.
+3. Send audio track analysis query containing the id from 3.
+4. Get tempo field and update database for the associated track
+
+Repeat 1-4 for each track in the database. It is slow but effective.
+
+### Embedded spotify player
 
 - Run `python spotify_server.py` 
 - Go to http://127.0.0.1:5000/
 - Enter a Spotify search
 
-We do not have defined a definite use for Spotify's API but it's good to have it available.
+It's just a fun embedding for spotify's player widget.

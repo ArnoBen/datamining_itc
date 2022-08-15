@@ -94,6 +94,7 @@ def main():
     start = time.time()
     parser = parse_arguments()
     args = vars(parser.parse_args())
+    return parser.print_help()
     log_level = logging.DEBUG if args.pop("debug") else logging.INFO
     logging.basicConfig(filename="logs.txt", level=log_level, format='%(asctime)s %(levelname)s:%(message)s')
 
