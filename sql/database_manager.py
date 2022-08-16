@@ -87,10 +87,13 @@ class DatabaseManager:
 
     def _insert_tracks(self, tracks: list[DbTrack]):
         """Insert a track list into the database"""
-        query = "INSERT INTO Track VALUES (%s, %s, %s, %s, %s)"
+        self.cursor.execute("DESCRIBE Track")
+        cols = self.cursor.fetchall()
+        query = "INSERT INTO Track VALUES (" + "%s, " * (len(cols) - 1) + "%s)"
         for db_track in tracks:
             if not self._already_exists("Track", db_track.id):
-                value = (db_track.id, db_track.title[:255], db_track.duration, None, db_track.album_id)
+                value = [db_track.id, db_track.album_id, db_track.title[:255], db_track.duration]
+                value += [None] * (len(cols) - len(value))
                 self.cursor.execute(query, value)
 
     def _insert_album_artist(self, album_artist: DbAlbumArtist):

@@ -65,14 +65,14 @@ def fill_db_from_spotify(args):
     """
     spotify = SpotifyDBFiller()
     tracks = spotify.dbmanager.get_tracks()
-    db_ids, spotify_ids, tempos = [], [], []
+    db_ids, spotify_ids, audio_features = [], [], []
     count = 0
-    batch_size = 100
+    batch_size = 2
     # Removing tracks where tempo already added
-    tracks = [track for track in tracks if track[2] is None]
+    tracks = [track for track in tracks if any(track[4:]) is None]
     with tqdm(total=batch_size) as pbar:
         for track in tracks:
-            db_id, name, tempo, album, artist = track
+            db_id, name, album, artist = track[:4]
             spotify_id = spotify.get_track_spotify_id(name, album, artist)
             time.sleep(.1)  # I don't want to reach Spotify's max request rate
             if spotify_id:
@@ -84,7 +84,7 @@ def fill_db_from_spotify(args):
                 count += batch_size
                 features = spotify.get_audio_features(spotify_ids)
                 tempos = tempos + [int(feature['tempo']) for feature in features]
-                spotify.fill_tempos_in_db(db_ids, tempos)
+                spotify.fill_audio_features_in_db(db_ids, tempos)
                 logging.info(f"Added {count}/{len(tracks)} tempos in database")
                 spotify_ids = []
                 pbar.reset()
@@ -94,7 +94,6 @@ def main():
     start = time.time()
     parser = parse_arguments()
     args = vars(parser.parse_args())
-    return parser.print_help()
     log_level = logging.DEBUG if args.pop("debug") else logging.INFO
     logging.basicConfig(filename="logs.txt", level=log_level, format='%(asctime)s %(levelname)s:%(message)s')
 

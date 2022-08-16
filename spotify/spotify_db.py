@@ -20,7 +20,7 @@ class SpotifyDBFiller:
         """Gets the audio features of a list of songs from spotify's api"""
         return self.wrapper.get_audio_features(ids)
 
-    def fill_tempos_in_db(self, db_ids: list, tempos: list):
+    def fill_audio_features_in_db(self, db_ids: list, features: list[tuple]):
         """Fill the tempo column of given tracks in the database"""
         args = list(zip(tempos, db_ids))
         self.dbmanager.insert_tempo_list_from_spotify(args)

@@ -5,10 +5,18 @@ USE datamining_itc_music;
 
 CREATE TABLE `Track` (
   `id` varchar(255) PRIMARY KEY,
+  `album_id` varchar(255),
   `title` varchar(255),
   `duration` int,
-  `tempo` int,
-  `album_id` varchar(255)
+  `danceability` float,
+  `energy` float,
+  `key` int,
+  `loudness` float,
+  `speechiness` float,
+  `acousticness` float,
+  `instrumentalness` float,
+  `valence` float,
+  `tempo` float
 );
 
 CREATE TABLE `Album` (

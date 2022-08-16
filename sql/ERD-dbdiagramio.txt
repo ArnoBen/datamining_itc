@@ -2,7 +2,15 @@ Table Track {
   id varchar [pk]
   title varchar
   duration int // seconds
-  tempo int //bpm
+  danceability float
+  energy float
+  key int
+  loudness float
+  speechiness float
+  acousticness float
+  instrumentalness float
+  valence float
+  tempo float //bpm
   album_id varchar
 }
 
