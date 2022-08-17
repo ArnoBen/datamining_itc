@@ -10,13 +10,12 @@ CREATE TABLE `Track` (
   `duration` int,
   `danceability` float,
   `energy` float,
-  `key` int,
   `loudness` float,
   `speechiness` float,
   `acousticness` float,
   `instrumentalness` float,
   `valence` float,
-  `tempo` float
+  `tempo` int
 );
 
 CREATE TABLE `Album` (

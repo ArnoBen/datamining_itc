@@ -25,6 +25,11 @@ class SpotifyWrapper:
         data = json.loads(result.text)
         if 'error' in data:
             logging.warning(f"Error {data['error']['status']} for query {query}")
+            if data['error']['status'] == 401:  # 401: token expired
+                # Request new access tokens
+                self.headers = self.auth.get_headers()
+                self.Logger.info('Requesting new access tokens')
+                return self.search(query)
             return None
         else:
             if len(data['tracks']['items']) > 0:

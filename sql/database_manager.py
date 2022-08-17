@@ -41,7 +41,9 @@ class DatabaseManager:
 
         """
         query = """
-        SELECT t.id, t.title, t.tempo, a.name, a2.name 
+        SELECT t.id, t.title, a.name, a2.name, t.tempo, t.duration,
+                t.danceability, t.energy, t.loudness, t.speechiness, 
+                t.acousticness, t.instrumentalness, t.valence, t.tempo
         FROM Track t
             JOIN Album a ON a.id = t.album_id
             JOIN AlbumArtist aa on aa.album_id = a.id 
@@ -58,9 +60,20 @@ class DatabaseManager:
         query = f"UPDATE Track SET tempo = {tempo} WHERE id = '{track_id}'"
         self.cursor.execute(query)
 
-    def insert_tempo_list_from_spotify(self, args):
+    def insert_features_from_spotify(self, args):
         """Fill the tempo column of given tracks in the database"""
-        query = "UPDATE Track SET tempo = %s WHERE id = %s"
+        query = """
+        UPDATE Track 
+        SET danceability = %s, 
+        energy = %s,
+        loudness = %s,
+        speechiness = %s,
+        acousticness = %s,
+        instrumentalness = %s,
+        valence = %s,
+        tempo = %s
+        WHERE id = %s
+        """
         self.cursor.executemany(query, args)
         self.connection.commit()
 

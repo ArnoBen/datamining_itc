@@ -67,9 +67,9 @@ def fill_db_from_spotify(args):
     tracks = spotify.dbmanager.get_tracks()
     db_ids, spotify_ids, audio_features = [], [], []
     count = 0
-    batch_size = 2
+    batch_size = 50
     # Removing tracks where tempo already added
-    tracks = [track for track in tracks if any(track[4:]) is None]
+    tracks = [track for track in tracks if all(item is None for item in track[6:])]
     with tqdm(total=batch_size) as pbar:
         for track in tracks:
             db_id, name, album, artist = track[:4]
@@ -82,11 +82,14 @@ def fill_db_from_spotify(args):
             # Every BATCH_SIZE ids (spotify's limit), make a batch request
             if len(spotify_ids) == batch_size:
                 count += batch_size
-                features = spotify.get_audio_features(spotify_ids)
-                tempos = tempos + [int(feature['tempo']) for feature in features]
-                spotify.fill_audio_features_in_db(db_ids, tempos)
-                logging.info(f"Added {count}/{len(tracks)} tempos in database")
-                spotify_ids = []
+                features, feature_names = spotify.get_audio_features(spotify_ids)
+                tracks_values = []
+                for feature in features:
+                    track_values = [feature[name] for name in feature_names]
+                    tracks_values.append(track_values)
+                spotify.fill_audio_features_in_db(db_ids, tracks_values)
+                logging.info(f"Added {count}/{len(tracks)} features in database")
+                spotify_ids, db_ids = [], []
                 pbar.reset()
 
 

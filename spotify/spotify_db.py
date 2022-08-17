@@ -18,12 +18,14 @@ class SpotifyDBFiller:
 
     def get_audio_features(self, ids: list):
         """Gets the audio features of a list of songs from spotify's api"""
-        return self.wrapper.get_audio_features(ids)
+        feature_names = ['danceability', 'energy', 'loudness', 'speechiness',
+                         'acousticness', 'instrumentalness', 'valence', 'tempo']
+        return self.wrapper.get_audio_features(ids), feature_names
 
-    def fill_audio_features_in_db(self, db_ids: list, features: list[tuple]):
+    def fill_audio_features_in_db(self, db_ids: list, features: list):
         """Fill the tempo column of given tracks in the database"""
-        args = list(zip(tempos, db_ids))
-        self.dbmanager.insert_tempo_list_from_spotify(args)
+        args = [tuple(feature + [db_id]) for feature, db_id in zip(features, db_ids)]
+        self.dbmanager.insert_features_from_spotify(args)
 
 
 if __name__ == "__main__":

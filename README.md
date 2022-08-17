@@ -81,10 +81,19 @@ Or run the provided script `create_db.sh` in the sql folder.
   - id: genre id (hash)
   - name: genre name. If an album has multiple genres like "Rock/Blues", this is not split and is considered a single genre.
 - **Track**
-  - id: track id (hash)
   - title: track title
-  - duration: track duration in seconds
   - album_id: album in which this track belongs
+  - id varchar track id (hash)
+  - title: track title 
+  - duration: track duration in seconds
+  - danceability: track danceability (spotify)
+  - energy: track energy (spotify) 
+  - loudness: track loudness (spotify) 
+  - speechiness: track speechiness (spotify) 
+  - acousticness: track acousticness (spotify) 
+  - instrumentalness: track instrumentalness (spotify)
+  - valence: track valence (spotify), measure of happiness conveyed
+  - tempo: track tempo (spotify)
 - **AlbumArtist**: Table joining Album with Artist
   - album_id: album id
   - artist_id: artist id
@@ -103,7 +112,7 @@ This command fetches the tracks currently in the database and send queries to sp
 1. Send search query to spotify containing `[track_title] [album] [artist]`
 2. Spotify provides json list containing track info. Keep id of 1st result.
 3. Send audio track analysis query containing the id from 3.
-4. Get tempo field and update database for the associated track
+4. Get features and update database for the associated track
 
 Repeat 1-4 for each track in the database. It is slow but effective.
 

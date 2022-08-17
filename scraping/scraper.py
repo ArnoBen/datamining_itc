@@ -171,7 +171,7 @@ class Scraper:
                 tracks.append(track_info)
 
             album_data = {
-                "genre": genre if genre else None,
+                "genre": genre.split(',')[0].split('/')[0].strip(' ') if genre else None,
                 "year": int(year) if year else None,
                 "tracks": tracks,
             }
