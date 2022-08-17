@@ -106,6 +106,8 @@ Nb: The object's ids are obtained with a custom deterministic hash using hashlib
 
 ### Spotify API calls
 
+*Files related to Spotify API calls are located in the Spotify folder.*
+
 usage : `python main.py -a`
 
 This command fetches the tracks currently in the database and send queries to spotify following this pattern:
