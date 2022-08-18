@@ -54,7 +54,7 @@ optional arguments:
 
 This will scrape the albums pages in discogs starting from [this page](https://www.discogs.com/search/?limit=50&sort=have%2Cdesc&ev=em_rs&type=master&layout=sm)
 
-:warning: `-a` is used for Spotify API calls, and any other argument passed will be ignored. See Spotify part of the Readme.
+:warning: `-a` is used for Spotify API calls, and arguments concerning Discogs scraping will be ignored. See Spotify part of the Readme.
 
 ### Database Architecture
 
