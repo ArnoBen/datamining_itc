@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import threading
 
 import dotenv
 import requests
@@ -14,9 +15,10 @@ class SpotifyWrapper:
     BASE_URL = 'https://api.spotify.com/v1/'
 
     def __init__(self):
+        self.logger = logging.getLogger(__name__)
         self.auth = SpotifyAuth(os.environ['CLIENT_ID'], os.environ['CLIENT_SECRET'])
         self.headers = self.auth.get_headers()
-        self.Logger = logging.Logger(__name__)
+        self._refresh_auth_token_periodically()  # Refreshing just before 1h
 
     def search(self, query: str):
         """Searches spotify with the given query"""
@@ -24,11 +26,11 @@ class SpotifyWrapper:
         result = requests.get(self.BASE_URL + 'search', headers=self.headers, params=params)
         data = json.loads(result.text)
         if 'error' in data:
-            logging.warning(f"Error {data['error']['status']} for query {query}")
+            self.logger.warning(f"Error {data['error']['status']} for query {query}")
             if data['error']['status'] == 401:  # 401: token expired
                 # Request new access tokens
                 self.headers = self.auth.get_headers()
-                self.Logger.info('Requesting new access tokens')
+                self.logger.info('Refreshing access token.')
                 return self.search(query)
             return None
         else:
@@ -44,6 +46,14 @@ class SpotifyWrapper:
         result = requests.get(self.BASE_URL + 'audio-features', headers=self.headers, params=params)
         data = json.loads(result.text)
         return data['audio_features']
+
+    def _refresh_auth_token_periodically(self):
+        """Queries for a new access token to prevent expiration"""
+        t = threading.Timer(3500, self._refresh_auth_token_periodically)
+        t.daemon = True
+        t.start()
+        self.logger.debug('Refreshing access token.')
+        self.headers = self.auth.get_headers()
 
 
 if __name__ == '__main__':

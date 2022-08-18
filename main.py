@@ -98,7 +98,7 @@ def main():
     parser = parse_arguments()
     args = vars(parser.parse_args())
     log_level = logging.DEBUG if args.pop("debug") else logging.INFO
-    logging.basicConfig(filename="logs.txt", level=log_level, format='%(asctime)s %(levelname)s:%(message)s')
+    logging.basicConfig(filename="logs.txt", level=log_level, format='%(filename)s-%(asctime)s %(levelname)s:%(message)s')
 
     if args['api']:
         logging.info("Starting Spotify API requests")

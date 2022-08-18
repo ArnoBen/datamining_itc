@@ -27,7 +27,7 @@ class Scraper:
             year (int): year to filter
             cores (int): cpu cores to use for multiprocessing
         """
-        self.Logger = logging.getLogger(__name__)
+        self.logger = logging.getLogger(__name__)
         self.count = count
         self.year = year
         self.errors = []
@@ -43,7 +43,7 @@ class Scraper:
         responses = self._request_albums()
         for i, response in tqdm(enumerate(responses), total=len(responses)):
             html_page, url, status_code = response
-            self.Logger.debug(f"Scraping page {i + 1}/{len(responses)}: {url}")
+            self.logger.debug(f"Scraping page {i + 1}/{len(responses)}: {url}")
             albums_page = self._scrape_albums_page(response)
             for album in albums_page:
                 albums.append(album)
@@ -83,7 +83,7 @@ class Scraper:
             return albums_page
 
         except Exception as e:
-            self.Logger.error(f"\nAn error occurred when scraping page {url}: {e}")
+            self.logger.error(f"\nAn error occurred when scraping page {url}: {e}")
             self.errors.append((url, e.__traceback__))
 
     def scrape_albums_songs(self, albums: list):
@@ -95,7 +95,7 @@ class Scraper:
         Returns:
             list: albums containing name, artist, url, genre, year and tracklist
         """
-        self.Logger.info(f"Scraping {len(albums)} albums")
+        self.logger.info(f"Scraping {len(albums)} albums")
         albums_data = []
         urls = (self.BASE_URL + album["url"] for album in albums)
         responses_queue = Queue()
@@ -129,7 +129,7 @@ class Scraper:
         albums_complete = []
         for album, album_data in zip(albums, albums_data):
             if album_data is None:  # Happens when an error occurred during a request
-                self.Logger.warning(f"\nIgnoring empty album_data for {album.get('url', None)}")
+                self.logger.warning(f"\nIgnoring empty album_data for {album.get('url', None)}")
                 continue
             full_data = {
                 'name': album.get('name', None),
@@ -150,7 +150,7 @@ class Scraper:
         """
         html_page, url, status_code = response
         try:
-            self.Logger.debug(f"Scraping album : {url}")
+            self.logger.debug(f"Scraping album : {url}")
             if not html_page:
                 raise ValueError(f"HTML page empty, request response code {status_code}")
             soup = BeautifulSoup(html_page, features="html.parser")
@@ -179,7 +179,7 @@ class Scraper:
 
         except Exception as e:
             print("\n")
-            self.Logger.error(f"\nAn error occurred when scraping page {url}: {e}")
+            self.logger.error(f"\nAn error occurred when scraping page {url}: {e}")
             self.errors.append((url, e.__traceback__))
 
     def _request_albums(self):
@@ -188,7 +188,7 @@ class Scraper:
         Returns:
             list: htmls of pages to scrape
         """
-        self.Logger.info(f"Requesting the first {self.count} pages of albums" +
+        self.logger.info(f"Requesting the first {self.count} pages of albums" +
                          (f" released in {self.year}" if self.year else ""))
         year_param = f"&year={self.year}" if self.year else ""
         pages = [self.URL + year_param + f"&page={page}" for page in range(1, self.count + 1)]
@@ -210,7 +210,7 @@ class Scraper:
         Returns:
             list: htmls of pages to scrape
         """
-        self.Logger.debug(f"Requesting {len(urls)} album pages")
+        self.logger.debug(f"Requesting {len(urls)} album pages")
         session = requests_session.get_session()
         rs = (grequests.get(url, stream=False, session=session) for url in urls)
         responses = grequests.map(rs)
@@ -219,9 +219,9 @@ class Scraper:
 
     def print_errors(self):
         if self.errors:
-            self.Logger.warning("These pages raised errors when scraping: ")
+            self.logger.warning("These pages raised errors when scraping: ")
             for url in self.errors:
-                self.Logger.warning(url)
+                self.logger.warning(url)
 
 
 if __name__ == "__main__":
