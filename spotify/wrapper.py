@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import threading
+import time
 
 import dotenv
 import requests
@@ -18,7 +19,7 @@ class SpotifyWrapper:
         self.logger = logging.getLogger(__name__)
         self.auth = SpotifyAuth(os.environ['CLIENT_ID'], os.environ['CLIENT_SECRET'])
         self.headers = self.auth.get_headers()
-        self._refresh_auth_token_periodically()  # Refreshing just before 1h
+        self._start_auth_token_refresh()
 
     def search(self, query: str):
         """Searches spotify with the given query"""
@@ -47,13 +48,18 @@ class SpotifyWrapper:
         data = json.loads(result.text)
         return data['audio_features']
 
+    def _start_auth_token_refresh(self):
+        """Starts a thread to periodically refresh tokens"""
+        refresh_token_thread = threading.Thread(target=self._refresh_auth_token_periodically)
+        refresh_token_thread.setDaemon(True)
+        refresh_token_thread.start()
+
     def _refresh_auth_token_periodically(self):
         """Queries for a new access token to prevent expiration"""
-        t = threading.Timer(3500, self._refresh_auth_token_periodically)
-        t.daemon = True
-        t.start()
-        self.logger.debug('Refreshing access token.')
-        self.headers = self.auth.get_headers()
+        while True:
+            time.sleep(3500)
+            self.logger.debug('Refreshing access token.')
+            self.headers = self.auth.get_headers()
 
 
 if __name__ == '__main__':
