@@ -12,7 +12,8 @@ class DatabaseManager:
     def __init__(self):
         self.connection = pymysql.connect(user=os.environ["MYSQL_USER"],
                                           password=os.environ["MYSQL_PASSWORD"],
-                                          db="datamining_itc_music")
+                                          host=os.environ["MYSQL_HOST"],
+                                          db=os.environ["MYSQL_DATABASE"])
         self.cursor = self.connection.cursor()
 
     def insert_data_from_album(self, album_dict: dict):

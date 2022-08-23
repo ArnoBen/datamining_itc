@@ -1,7 +1,7 @@
-DROP DATABASE IF EXISTS datamining_itc_music;
-CREATE DATABASE IF NOT EXISTS datamining_itc_music;
+DROP DATABASE IF EXISTS arno_shai;
+CREATE DATABASE IF NOT EXISTS arno_shai;
 
-USE datamining_itc_music;
+USE arno_shai;
 
 CREATE TABLE `Track` (
   `id` varchar(255) PRIMARY KEY,
