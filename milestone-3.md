@@ -45,6 +45,23 @@ sudo apt install mariadb-client-core-10.1
 # opened a screen session, and
 htop 
 python main.py -c 1000 -o 2 -s
+# to connect to the server
+
 
 ```
 
+# server process
+
+```
+ubuntu@ip-172-31-29-60:~/datamining_itc/sql$ screen -ls
+There is a screen on:
+	5636.arno_shai	(08/23/22 17:27:43)	(Detached)
+1 Socket in /run/screen/S-ubuntu.
+ubuntu@ip-172-31-29-60:~/datamining_itc/sql$ screen -x arno_shai
+[detached from 5636.arno_shai]
+```
+
+# server - redash.
+
+Our dashboard: http://ec2-3-101-106-48.us-west-1.compute.amazonaws.com/
+arno_shai
