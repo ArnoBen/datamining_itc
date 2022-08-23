@@ -30,7 +30,6 @@ Using virtualenv:
 2. `python3 main.py [-h] [-d] [-s] [-c COUNT] [-y YEAR] [-o CORES] [-a] `, see chapter below for more information.
 3. `python3 spotify_server.py` # browser UI
 
-
 :warning: You will need the environment variables `MYSQL_PASSWORD` and `MYSQL_USER` to connect to mysql database.
 Moreover, you will need `CLIENT_ID` and `CLIENT_SECRET` to request Spotify's API. The .env file will be provided in the .zip submission.
 
