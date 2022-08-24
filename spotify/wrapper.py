@@ -25,21 +25,25 @@ class SpotifyWrapper:
         """Searches spotify with the given query"""
         params = {'q': query, 'limit': 1, 'type': 'track'}
         result = requests.get(self.BASE_URL + 'search', headers=self.headers, params=params)
-        data = json.loads(result.text)
-        if 'error' in data:
-            self.logger.warning(f"Error {data['error']['status']} for query {query}")
-            if data['error']['status'] == 401:  # 401: token expired
-                # Request new access tokens
-                self.headers = self.auth.get_headers()
-                self.logger.info('Refreshing access token.')
-                return self.search(query)
-            return None
-        else:
-            if len(data['tracks']['items']) > 0:
-                track = data['tracks']['items'][0]
-                return track
-            else:
+        try:
+            data = json.loads(result.text)
+            if 'error' in data:
+                self.logger.warning(f"Error {data['error']['status']} for query {query}")
+                if data['error']['status'] == 401:  # 401: token expired
+                    # Request new access tokens
+                    self.headers = self.auth.get_headers()
+                    self.logger.info('Refreshing access token.')
+                    return self.search(query)
                 return None
+            else:
+                if len(data['tracks']['items']) > 0:
+                    track = data['tracks']['items'][0]
+                    return track
+                else:
+                    return None
+        except json.decoder.JSONDecodeError as e:
+            self.logger.error('Error occured when opening spotify search query result:', e)
+            return None
 
     def get_audio_features(self, track_ids: list):
         """Gets the audio features of a list of songs from spotify's api"""
