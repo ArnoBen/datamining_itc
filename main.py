@@ -70,11 +70,10 @@ def fill_db_from_spotify(args):
     batch_size = 100
     # Removing tracks where tempo already added
     tracks = [track for track in tracks if all(item is None for item in track[6:])]
-    for track in tqdm(tracks):
-        with tqdm(total=batch_size, leave=False) as sub_pbar:
+    with tqdm(total=batch_size) as sub_pbar:
+        for track in tqdm(tracks):
             db_id, name, album, artist = track[:4]
             spotify_id = spotify.get_track_spotify_id(name, album, artist)
-            time.sleep(1)  # I don't want to reach Spotify's max request rate
             if spotify_id:
                 spotify_ids.append(spotify_id)
                 db_ids.append(db_id)

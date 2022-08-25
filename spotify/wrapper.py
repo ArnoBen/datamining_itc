@@ -25,6 +25,7 @@ class SpotifyWrapper:
     def search(self, query: str):
         """Searches spotify with the given query"""
         if query in self.ignore:
+            self.logger.info(f"Ignoring query: '{query}'")
             return None
         params = {'q': query, 'limit': 1, 'type': 'track'}
         response = requests.get(self.BASE_URL + 'search', headers=self.headers, params=params)
@@ -54,9 +55,10 @@ class SpotifyWrapper:
                     self.logger.error('Error 429: too many requests. Waiting for 1 hour.')
                     time.sleep(3600)
                 return None
-            else:
+            else:  # this is when things go right
                 if len(data['tracks']['items']) > 0:
                     track = data['tracks']['items'][0]
+                    time.sleep(1)  # Trying not to reach Spotify's query threshold
                     return track
                 else:
                     self._add_to_ignore_search(query)
