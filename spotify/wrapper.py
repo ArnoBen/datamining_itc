@@ -82,16 +82,15 @@ class SpotifyWrapper:
             self.logger.debug('Refreshing access token.')
             self.headers = self.auth.get_headers()
 
-    @staticmethod
-    def _add_to_ignore_search(query: str):
+    def _add_to_ignore_search(self, query: str):
         """Adds a query to the list of queries that provide no result"""
-        print(f'Adding {query} to ignore list')
+        self.logger.info(f'Adding {query} to ignore list')
         with open('spotify/ignore_search.txt', 'a') as f:
             f.write(f'{query}\n')
 
     @staticmethod
     def _get_ignore_set():
-        """"""
+        """Returns a set of queries to ignore. Sets are faster than lists to search."""
         ignore = []
         with open('spotify/ignore_search.txt', 'r') as f:
             for line in f.readlines():
