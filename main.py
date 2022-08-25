@@ -70,30 +70,28 @@ def fill_db_from_spotify(args):
     batch_size = 100
     # Removing tracks where tempo already added
     tracks = [track for track in tracks if all(item is None for item in track[6:])]
-    with tqdm(total=len(tracks)) as pbar:
+    for track in tqdm(tracks):
         with tqdm(total=batch_size, leave=False) as sub_pbar:
-            for track in tracks:
-                db_id, name, album, artist = track[:4]
-                spotify_id = spotify.get_track_spotify_id(name, album, artist)
-                time.sleep(1)  # I don't want to reach Spotify's max request rate
-                if spotify_id:
-                    spotify_ids.append(spotify_id)
-                    db_ids.append(db_id)
-                    sub_pbar.update()
-                # Every BATCH_SIZE ids (spotify's limit), make a batch request
-                if len(spotify_ids) == batch_size:
-                    count += batch_size
-                    features, feature_names = spotify.get_audio_features(spotify_ids)
-                    if features and feature_names:
-                        tracks_values = []
-                        for feature in features:
-                            track_values = [feature[name] for name in feature_names]
-                            tracks_values.append(track_values)
-                        spotify.fill_audio_features_in_db(db_ids, tracks_values)
-                        logging.info(f"Added {count}/{len(tracks)} features in database")
-                    spotify_ids, db_ids = [], []
-                    sub_pbar.reset()
-                pbar.update()
+            db_id, name, album, artist = track[:4]
+            spotify_id = spotify.get_track_spotify_id(name, album, artist)
+            time.sleep(1)  # I don't want to reach Spotify's max request rate
+            if spotify_id:
+                spotify_ids.append(spotify_id)
+                db_ids.append(db_id)
+                sub_pbar.update()
+            # Every BATCH_SIZE ids (spotify's limit), make a batch request
+            if len(spotify_ids) == batch_size:
+                count += batch_size
+                features, feature_names = spotify.get_audio_features(spotify_ids)
+                if features and feature_names:
+                    tracks_values = []
+                    for feature in features:
+                        track_values = [feature[name] if feature else None for name in feature_names]
+                        tracks_values.append(track_values)
+                    spotify.fill_audio_features_in_db(db_ids, tracks_values)
+                    logging.info(f"Added {count}/{len(tracks)} features in database")
+                spotify_ids, db_ids = [], []
+                sub_pbar.reset()
 
 
 def main():

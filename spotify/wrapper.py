@@ -41,13 +41,16 @@ class SpotifyWrapper:
         try:
             data = json.loads(response.text)
             if 'error' in data:
-                self.logger.warning(f"Error {data['error']['status']} for query {query}")
-                if data['error']['status'] == 401:  # 401: token expired
+                status = data['error']['status']
+                self.logger.warning(f"Error {status} for query {query}")
+                if status == 401:  # 401: token expired
                     # Request new access tokens
                     self.headers = self.auth.get_headers()
                     self.logger.info('Refreshing access token.')
                     return self.search(query)
-                elif data['error']['status'] == 429:  # 429: too many requests
+                elif status == 404:
+                    self._add_to_ignore_search(query)
+                elif status == 429:  # 429: too many requests
                     self.logger.error('Error 429: too many requests. Waiting for 1 hour.')
                     time.sleep(3600)
                 return None
