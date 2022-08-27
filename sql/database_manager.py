@@ -1,3 +1,4 @@
+import logging
 import os
 
 import pymysql
@@ -9,12 +10,15 @@ load_dotenv()
 
 
 class DatabaseManager:
+    MAX_RETRIES = 10
+
     def __init__(self):
         self.connection = pymysql.connect(user=os.environ["MYSQL_USER"],
                                           password=os.environ["MYSQL_PASSWORD"],
                                           host=os.environ["MYSQL_HOST"],
                                           db=os.environ["MYSQL_DATABASE"])
         self.cursor = self.connection.cursor()
+        self.logger = logging.getLogger(__name__)
 
     def insert_data_from_album(self, album_dict: dict):
         """
@@ -75,8 +79,18 @@ class DatabaseManager:
         tempo = %s
         WHERE id = %s
         """
-        self.cursor.executemany(query, args)
-        self.connection.commit()
+        i = 0
+        while i < self.MAX_RETRIES:
+            try:
+                self.cursor.executemany(query, args)
+            except pymysql.err.OperationalError as e:
+                i += 1
+                self.logger.warning(f"SQL OperationalError '{e}' - Retry {i}/{self.MAX_RETRIES}")
+            else:
+                self.connection.commit()
+                return
+        self.logger.error(f"Max retries to SQL server reached: terminating process")
+        raise Exception('Max retries to SQL server reached')
 
     def _insert_album(self, album: DbAlbum):
         """Inserts an album into the database"""
