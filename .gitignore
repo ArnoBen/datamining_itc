@@ -1,3 +1,9 @@
+# Heavy file
+db_dump.sql
+
+# Private keys
+privkey.pem
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

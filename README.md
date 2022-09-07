@@ -124,3 +124,11 @@ Repeat 1-4 for each track in the database. It is slow but effective.
 - Enter a Spotify search
 
 It's just a fun embedding for spotify's player widget.
+
+
+# Redash visualization
+
+This is the Redash dashboard created to display various visualizations of the scraped data.
+
+![Redash visualization](redash_result.jpg)
+
