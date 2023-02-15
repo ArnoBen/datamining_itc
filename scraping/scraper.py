@@ -18,6 +18,7 @@ class Scraper:
     BASE_OPTIONS = "/search/?limit=100&sort=have%2Cdesc&ev=em_rs&type=master&layout=sm"
     URL = BASE_URL + BASE_OPTIONS
     BATCH_SIZE = 100
+    HEADERS = {"User-Agent": "Mozilla/5.0"}
 
     def __init__(self, count: int = 3, year: int = None, cores: int = 4):
         """
@@ -193,7 +194,7 @@ class Scraper:
         year_param = f"&year={self.year}" if self.year else ""
         pages = [self.URL + year_param + f"&page={page}" for page in range(1, self.count + 1)]
         session = get_session()
-        rs = (grequests.get(page, stream=False, session=session) for page in pages)
+        rs = (grequests.get(page, stream=False, session=session, headers=self.HEADERS) for page in pages)
         responses = grequests.map(rs)
         for response in responses: response.close()
         return [(response.text, response.url, response.status_code) for response in responses]
@@ -212,9 +213,10 @@ class Scraper:
         """
         self.logger.debug(f"Requesting {len(urls)} album pages")
         session = requests_session.get_session()
-        rs = (grequests.get(url, stream=False, session=session) for url in urls)
+        rs = (grequests.get(url, stream=False, session=session, headers=self.HEADERS) for url in urls)
         responses = grequests.map(rs)
         for response in responses: response.close()
+        print(response)
         return [(response.text, response.url, response.status_code) for response in responses]
 
     def print_errors(self):
