@@ -106,7 +106,7 @@ class Scraper:
                 batch = list(itertools.islice(_urls, self.BATCH_SIZE))
                 if not batch:
                     break
-                for response in self._request_albums_songs(batch): q.put(response)
+                for response in self._request_albums_tracks(batch): q.put(response)
 
         worker = Thread(target=download_pages, args=(urls, responses_queue))
         worker.setDaemon(True)
@@ -122,7 +122,7 @@ class Scraper:
                     time.sleep(0.001)
                 queue_batch = [responses_queue.get(block=True) for i in range(min(self.n_cores, responses_queue.qsize()))]
                 with Pool(self.n_cores) as p:
-                    for album_data in p.imap(self._scrape_albums_songs_page, queue_batch):
+                    for album_data in p.imap(self._scrape_albums_tracks_page, queue_batch):
                         albums_data.append(album_data)
                         pbar.update()
 
@@ -143,7 +143,7 @@ class Scraper:
             albums_complete.append(full_data)
         return albums_complete
 
-    def _scrape_albums_songs_page(self, response: tuple):
+    def _scrape_albums_tracks_page(self, response: tuple):
         """
         Scrapes the given discogs page of an album
         Args:
@@ -199,13 +199,13 @@ class Scraper:
         for response in responses: response.close()
         return [(response.text, response.url, response.status_code) for response in responses]
 
-    def _request_albums_songs(self, urls: list):
+    def _request_albums_tracks(self, urls: list):
         """
-        Requests album song pages on discogs.
+        Requests album track pages on discogs.
 
         This is different from request albums:
          request_albums requests the page containing a list of albums
-         request_album_songs requests specific album pages containing their list of songs.
+         request_album_tracks requests specific album pages containing their list of tracks.
         Args:
             urls: url of pages to request
         Returns:
