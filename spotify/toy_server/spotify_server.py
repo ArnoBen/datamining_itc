@@ -34,4 +34,4 @@ def get_spotify_embedding(id):
     return spotify_embedding
 
 
-app.run(debug=True)
+app.run(host="0.0.0.0", port=5001, debug=True)

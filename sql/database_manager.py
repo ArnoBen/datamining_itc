@@ -68,16 +68,16 @@ class DatabaseManager:
     def insert_features_from_spotify(self, args):
         """Fill the tempo column of given tracks in the database"""
         query = """
-        UPDATE Track 
-        SET danceability = %s, 
-        energy = %s,
-        loudness = %s,
-        speechiness = %s,
-        acousticness = %s,
-        instrumentalness = %s,
-        valence = %s,
-        tempo = %s
-        WHERE id = %s
+            UPDATE Track 
+            SET danceability = %s, 
+            energy = %s,
+            loudness = %s,
+            speechiness = %s,
+            acousticness = %s,
+            instrumentalness = %s,
+            valence = %s,
+            tempo = %s
+            WHERE id = %s
         """
         i = 0
         while i < self.MAX_RETRIES:

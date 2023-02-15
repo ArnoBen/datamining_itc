@@ -130,5 +130,5 @@ It's just a fun embedding for spotify's player widget.
 
 This is the Redash dashboard created to display various visualizations of the scraped data.
 
-![Redash visualization](redash_result.jpg)
+![Redash visualization](assets/redash_result.jpg)
 
