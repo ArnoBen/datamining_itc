@@ -5,6 +5,7 @@ import time
 from dotenv import load_dotenv
 from tqdm import tqdm
 
+from config import ScraperConfig
 from scraping import Scraper
 from spotify import SpotifyDBFiller
 from sql.database_manager import DatabaseManager
@@ -40,8 +41,9 @@ def scrape_discogs(args: dict):
     Args:
         args: cli arguments
     """
+    cfg = ScraperConfig()
     save = args.pop("save")  # bool that we will use when we implement the storage in db
-    scraper = Scraper(**args)
+    scraper = Scraper(cfg, **args)
     albums = scraper.scrape_albums()
     start_albums_scraping = time.time()
     albums_tracks = scraper.scrape_albums_tracks(albums)

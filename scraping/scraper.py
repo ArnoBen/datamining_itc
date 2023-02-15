@@ -11,16 +11,13 @@ from tqdm import tqdm
 
 from utils import minutes_sec_2_sec, requests_session
 from utils.requests_session import get_session
+from config import ScraperConfig
 
 
 class Scraper:
-    BASE_URL = "https://www.discogs.com"
-    BASE_OPTIONS = "/search/?limit=100&sort=have%2Cdesc&ev=em_rs&type=master&layout=sm"
-    URL = BASE_URL + BASE_OPTIONS
-    BATCH_SIZE = 100
     HEADERS = {"User-Agent": "Mozilla/5.0"}
 
-    def __init__(self, count: int = 3, year: int = None, cores: int = 4):
+    def __init__(self, cfg: ScraperConfig, count: int = 3, year: int = None, cores: int = 4):
         """
         Scraping class for Discogs.
         Args:
@@ -29,9 +26,17 @@ class Scraper:
             cores (int): cpu cores to use for multiprocessing
         """
         self.logger = logging.getLogger(__name__)
+        self.errors = []
+
+        # Config file
+        self.base_url = cfg.base_url
+        self.base_options = cfg.base_options
+        self.url = self.base_url + self.base_options
+        self.batch_size = cfg.batch_size
+
+        # Arguments
         self.count = count
         self.year = year
-        self.errors = []
         self.n_cores = cores
 
     def scrape_albums(self):
@@ -98,12 +103,12 @@ class Scraper:
         """
         self.logger.info(f"Scraping {len(albums)} albums")
         albums_data = []
-        urls = (self.BASE_URL + album["url"] for album in albums)
+        urls = (self.base_url + album["url"] for album in albums)
         responses_queue = Queue()
 
         def download_pages(_urls, q):
             while True:
-                batch = list(itertools.islice(_urls, self.BATCH_SIZE))
+                batch = list(itertools.islice(_urls, self.batch_size))
                 if not batch:
                     break
                 for response in self._request_albums_tracks(batch): q.put(response)
@@ -192,7 +197,7 @@ class Scraper:
         self.logger.info(f"Requesting the first {self.count} pages of albums" +
                          (f" released in {self.year}" if self.year else ""))
         year_param = f"&year={self.year}" if self.year else ""
-        pages = [self.URL + year_param + f"&page={page}" for page in range(1, self.count + 1)]
+        pages = [self.url + year_param + f"&page={page}" for page in range(1, self.count + 1)]
         session = get_session()
         rs = (grequests.get(page, stream=False, session=session, headers=self.HEADERS) for page in pages)
         responses = grequests.map(rs)
