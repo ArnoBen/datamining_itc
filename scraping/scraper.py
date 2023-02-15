@@ -87,7 +87,7 @@ class Scraper:
             self.logger.error(f"\nAn error occurred when scraping page {url}: {e}")
             self.errors.append((url, e.__traceback__))
 
-    def scrape_albums_songs(self, albums: list):
+    def scrape_albums_tracks(self, albums: list):
         """
         Scrapes each album's individual page
         Args:
@@ -245,4 +245,4 @@ if __name__ == "__main__":
         }
     ]
     scraper = Scraper()
-    scraper.scrape_albums_songs(test_albums)
+    scraper.scrape_albums_tracks(test_albums)

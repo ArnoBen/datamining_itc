@@ -44,15 +44,16 @@ def scrape_discogs(args: dict):
     scraper = Scraper(**args)
     albums = scraper.scrape_albums()
     start_albums_scraping = time.time()
-    albums = scraper.scrape_albums_songs(albums)
-    logging.info(f"Scraped {len(albums)} albums containing a total of {sum(len(album['tracks']) for album in albums)} tracks.")
+    albums_tracks = scraper.scrape_albums_tracks(albums)
+    logging.info(f"Scraped {len(albums_tracks)} albums containing a total of "
+                 f"{sum(len(album['tracks']) for album in albums_tracks)} tracks.")
     logging.info(f"Album scraping completed in {time.time() - start_albums_scraping} seconds")
     scraper.print_errors()  # outputs urls of pages that raised an error during scraping
     if save:
         start_db_saving = time.time()
         logging.info("Saving data into database")
         dbmanager = DatabaseManager()
-        for album in tqdm(albums, total=len(albums)):
+        for album in tqdm(albums_tracks, total=len(albums_tracks)):
             dbmanager.insert_data_from_album(album)
         logging.info(f"Database saving completed in {time.time() - start_db_saving} seconds.")
 
